@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC  -W -Wall -fPIC -O3  -Wno-error=deprecated-declarations -Wno-deprecated-declarations -g -g  -shared -Wl,-soname,libmag_compensation.so -o libmag_compensation.so CMakeFiles/mag_compensation.dir/mag_compensation.cpp.o CMakeFiles/mag_compensation.dir/tolles_lawson.cpp.o   -L/home/sun/magnav/lib 

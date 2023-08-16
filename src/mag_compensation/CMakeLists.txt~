@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(magcmp)
+
+#find_package(yaml-cpp REQUIRED)
+#find_package(OpenCV REQUIRED)
+find_package(Eigen3 REQUIRED)
+
+#list(APPEND LIB_MAGCMP ${OpenCV_LIBS})
+
+file(GLOB_RECURSE SRC_MAGCMP ./*.cpp)
+add_library(magcmp SHARED ${SRC_MAGCMP})
+target_link_libraries(magcmp ${LIB_MAGCMP})
+

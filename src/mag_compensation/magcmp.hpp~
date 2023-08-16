@@ -1,0 +1,51 @@
+/***********************************************
+#
+# Author: Sun Qinxuan
+#
+# Email: sunqinxuan@outlook.com
+#
+# Last modified:	2023-07-21 14:22
+#
+# Filename:		magcmp.hpp
+#
+# Description:
+#
+************************************************/
+
+#ifndef MAGNAV_MAGCMP_HPP_
+#define MAGNAV_MAGCMP_HPP_
+
+#include <deque>
+#include <eigen3/Eigen/Dense>
+#include <eigen3/Eigen/Geometry>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <mutex>
+#include <string>
+//#include <opencv2/core/eigen.hpp>
+//#include <opencv2/opencv.hpp>
+
+//#include "dataflow/dataflow.hpp"
+//#include "frontend/feature_manager.hpp"
+//#include "frontend/feature_tracker.hpp"
+//#include "frontend/initial_alignment.hpp"
+//#include "optimizer/factor_graph_optimizer.hpp"
+//#include "optimizer/imu_preintegration.hpp"
+//#include "tools/converter.hpp"
+//#include "tools/geometry.hpp"
+//#include "tools/message_print.hpp"
+//#include "tools/type_redefine.hpp"
+
+namespace magnav {
+
+class MagCMP {
+public:
+  MagCMP() {}
+
+private:
+private:
+};
+} // namespace magnav
+
+#endif

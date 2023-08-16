@@ -1,0 +1,1 @@
+/usr/bin/c++   -W -Wall -fPIC -O3  -Wno-error=deprecated-declarations -Wno-deprecated-declarations -g -g  -rdynamic CMakeFiles/magnav.dir/src/magnav.cpp.o  -o bin/magnav   -L/home/sun/magnav/lib 
