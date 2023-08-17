@@ -136,6 +136,19 @@ mag_compensation/fast:
 	$(MAKE) -f src/mag_compensation/CMakeFiles/mag_compensation.dir/build.make src/mag_compensation/CMakeFiles/mag_compensation.dir/build
 .PHONY : mag_compensation/fast
 
+#=============================================================================
+# Target rules for targets named filter
+
+# Build rule for target.
+filter: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 filter
+.PHONY : filter
+
+# fast build rule for target.
+filter/fast:
+	$(MAKE) -f src/filter/CMakeFiles/filter.dir/build.make src/filter/CMakeFiles/filter.dir/build
+.PHONY : filter/fast
+
 src/magnav.o: src/magnav.cpp.o
 
 .PHONY : src/magnav.o
@@ -173,6 +186,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... magnav"
 	@echo "... mag_compensation"
+	@echo "... filter"
 	@echo "... src/magnav.o"
 	@echo "... src/magnav.i"
 	@echo "... src/magnav.s"

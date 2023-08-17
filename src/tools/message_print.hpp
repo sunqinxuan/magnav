@@ -79,5 +79,5 @@ template <typename A, typename B, typename C> inline void DEBUG(A a, B b, C c) {
   std::cerr << "\033[1m\033[47m\33[34m" << a << " " << b << " " << c
             << "\033[0m" << std::endl;
 }
-} // namespace vslam
+} // namespace magnav
 #endif

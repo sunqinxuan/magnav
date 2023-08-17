@@ -14,9 +14,9 @@ INCLUDE_DIRECTORIES(src)
 link_directories(${PROJECT_SOURCE_DIR}/lib) # ${PROJECT_SOURCE_DIR}/3rdparty/lib)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
-add_subdirectory(src/magcmp)
-
+add_subdirectory(src/mag_compensation)
+add_subdirectory(src/filter)
 
 add_executable(magnav src/magnav.cpp)
-#target_link_libraries(magnav )
+target_link_libraries(magnav mag_compensation filter)
 

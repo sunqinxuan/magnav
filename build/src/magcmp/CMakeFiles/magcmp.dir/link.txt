@@ -1,1 +1,0 @@
-/usr/bin/c++ -fPIC  -W -Wall -fPIC -O3  -Wno-error=deprecated-declarations -Wno-deprecated-declarations -g -g  -shared -Wl,-soname,libmagcmp.so -o libmagcmp.so CMakeFiles/magcmp.dir/magcmp.cpp.o CMakeFiles/magcmp.dir/tolles_lawson.cpp.o   -L/home/sun/magnav/lib 

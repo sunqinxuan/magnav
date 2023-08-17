@@ -55,19 +55,40 @@ CMAKE_BINARY_DIR = /home/sun/magnav/build
 # The main recursive "all" target.
 all: CMakeFiles/magnav.dir/all
 all: src/mag_compensation/all
+all: src/filter/all
 
 .PHONY : all
 
 # The main recursive "preinstall" target.
 preinstall: src/mag_compensation/preinstall
+preinstall: src/filter/preinstall
 
 .PHONY : preinstall
 
 # The main recursive "clean" target.
 clean: CMakeFiles/magnav.dir/clean
 clean: src/mag_compensation/clean
+clean: src/filter/clean
 
 .PHONY : clean
+
+#=============================================================================
+# Directory level rules for directory src/filter
+
+# Recursive "all" directory target.
+src/filter/all: src/filter/CMakeFiles/filter.dir/all
+
+.PHONY : src/filter/all
+
+# Recursive "preinstall" directory target.
+src/filter/preinstall:
+
+.PHONY : src/filter/preinstall
+
+# Recursive "clean" directory target.
+src/filter/clean: src/filter/CMakeFiles/filter.dir/clean
+
+.PHONY : src/filter/clean
 
 #=============================================================================
 # Directory level rules for directory src/mag_compensation
@@ -91,15 +112,16 @@ src/mag_compensation/clean: src/mag_compensation/CMakeFiles/mag_compensation.dir
 # Target rules for target CMakeFiles/magnav.dir
 
 # All Build rule for target.
-CMakeFiles/magnav.dir/all:
+CMakeFiles/magnav.dir/all: src/mag_compensation/CMakeFiles/mag_compensation.dir/all
+CMakeFiles/magnav.dir/all: src/filter/CMakeFiles/filter.dir/all
 	$(MAKE) -f CMakeFiles/magnav.dir/build.make CMakeFiles/magnav.dir/depend
 	$(MAKE) -f CMakeFiles/magnav.dir/build.make CMakeFiles/magnav.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sun/magnav/build/CMakeFiles --progress-num=4,5 "Built target magnav"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sun/magnav/build/CMakeFiles --progress-num=7,8 "Built target magnav"
 .PHONY : CMakeFiles/magnav.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/magnav.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/sun/magnav/build/CMakeFiles 2
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/sun/magnav/build/CMakeFiles 8
 	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/magnav.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/sun/magnav/build/CMakeFiles 0
 .PHONY : CMakeFiles/magnav.dir/rule
@@ -118,15 +140,15 @@ CMakeFiles/magnav.dir/clean:
 # Target rules for target src/mag_compensation/CMakeFiles/mag_compensation.dir
 
 # All Build rule for target.
-src/mag_compensation/CMakeFiles/mag_compensation.dir/all:
+src/mag_compensation/CMakeFiles/mag_compensation.dir/all: src/filter/CMakeFiles/filter.dir/all
 	$(MAKE) -f src/mag_compensation/CMakeFiles/mag_compensation.dir/build.make src/mag_compensation/CMakeFiles/mag_compensation.dir/depend
 	$(MAKE) -f src/mag_compensation/CMakeFiles/mag_compensation.dir/build.make src/mag_compensation/CMakeFiles/mag_compensation.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sun/magnav/build/CMakeFiles --progress-num=1,2,3 "Built target mag_compensation"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sun/magnav/build/CMakeFiles --progress-num=4,5,6 "Built target mag_compensation"
 .PHONY : src/mag_compensation/CMakeFiles/mag_compensation.dir/all
 
 # Build rule for subdir invocation for target.
 src/mag_compensation/CMakeFiles/mag_compensation.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/sun/magnav/build/CMakeFiles 3
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/sun/magnav/build/CMakeFiles 6
 	$(MAKE) -f CMakeFiles/Makefile2 src/mag_compensation/CMakeFiles/mag_compensation.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/sun/magnav/build/CMakeFiles 0
 .PHONY : src/mag_compensation/CMakeFiles/mag_compensation.dir/rule
@@ -140,6 +162,33 @@ mag_compensation: src/mag_compensation/CMakeFiles/mag_compensation.dir/rule
 src/mag_compensation/CMakeFiles/mag_compensation.dir/clean:
 	$(MAKE) -f src/mag_compensation/CMakeFiles/mag_compensation.dir/build.make src/mag_compensation/CMakeFiles/mag_compensation.dir/clean
 .PHONY : src/mag_compensation/CMakeFiles/mag_compensation.dir/clean
+
+#=============================================================================
+# Target rules for target src/filter/CMakeFiles/filter.dir
+
+# All Build rule for target.
+src/filter/CMakeFiles/filter.dir/all:
+	$(MAKE) -f src/filter/CMakeFiles/filter.dir/build.make src/filter/CMakeFiles/filter.dir/depend
+	$(MAKE) -f src/filter/CMakeFiles/filter.dir/build.make src/filter/CMakeFiles/filter.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/sun/magnav/build/CMakeFiles --progress-num=1,2,3 "Built target filter"
+.PHONY : src/filter/CMakeFiles/filter.dir/all
+
+# Build rule for subdir invocation for target.
+src/filter/CMakeFiles/filter.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/sun/magnav/build/CMakeFiles 3
+	$(MAKE) -f CMakeFiles/Makefile2 src/filter/CMakeFiles/filter.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/sun/magnav/build/CMakeFiles 0
+.PHONY : src/filter/CMakeFiles/filter.dir/rule
+
+# Convenience name for target.
+filter: src/filter/CMakeFiles/filter.dir/rule
+
+.PHONY : filter
+
+# clean rule for target.
+src/filter/CMakeFiles/filter.dir/clean:
+	$(MAKE) -f src/filter/CMakeFiles/filter.dir/build.make src/filter/CMakeFiles/filter.dir/clean
+.PHONY : src/filter/CMakeFiles/filter.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

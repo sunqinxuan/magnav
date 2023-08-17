@@ -24,7 +24,7 @@
 #include <mutex>
 #include <string>
 
-#include "tolles_lawson.hpp"
+#include "mag_compensation/tolles_lawson.hpp"
 
 namespace magnav {
 

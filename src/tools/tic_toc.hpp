@@ -35,6 +35,6 @@ public:
 private:
   std::chrono::time_point<std::chrono::system_clock> start, end;
 };
-} // namespace vslam
+} // namespace magnav
 
 #endif

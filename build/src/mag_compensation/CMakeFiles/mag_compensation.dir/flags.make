@@ -6,5 +6,5 @@ CXX_FLAGS =  -W -Wall -fPIC -O3  -Wno-error=deprecated-declarations -Wno-depreca
 
 CXX_DEFINES = -Dmag_compensation_EXPORTS
 
-CXX_INCLUDES = -I/home/sun/magnav/src -I/usr/include/eigen3 
+CXX_INCLUDES = -I/home/sun/magnav/src -I/usr/include/hdf5/serial -isystem /usr/include/opencv4 
 
