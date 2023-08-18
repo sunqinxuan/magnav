@@ -1,9 +1,0 @@
-/home/sun/magnav/build/CMakeFiles/rebuild_cache.dir
-/home/sun/magnav/build/CMakeFiles/edit_cache.dir
-/home/sun/magnav/build/CMakeFiles/magnav.dir
-/home/sun/magnav/build/src/mag_compensation/CMakeFiles/rebuild_cache.dir
-/home/sun/magnav/build/src/mag_compensation/CMakeFiles/edit_cache.dir
-/home/sun/magnav/build/src/mag_compensation/CMakeFiles/mag_compensation.dir
-/home/sun/magnav/build/src/filter/CMakeFiles/rebuild_cache.dir
-/home/sun/magnav/build/src/filter/CMakeFiles/edit_cache.dir
-/home/sun/magnav/build/src/filter/CMakeFiles/filter.dir

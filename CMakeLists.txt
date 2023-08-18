@@ -11,7 +11,6 @@ add_definitions(-std=c++14)
 set(CMAKE_CXX_STANDARD 14) 
 
 INCLUDE_DIRECTORIES(src)
-link_directories(${PROJECT_SOURCE_DIR}/lib) # ${PROJECT_SOURCE_DIR}/3rdparty/lib)
 SET(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 find_package(HDF5 REQUIRED)

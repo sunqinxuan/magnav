@@ -13,6 +13,7 @@
 ************************************************/
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <unordered_set>
 using std::cout;
@@ -225,21 +226,21 @@ int main (void)
    /*
     * Output buffer initialization.
     */
-   int i, j, k;
-   int         data_out[NX][NY][NZ ]; /* output buffer */
-   for (j = 0; j < NX; j++)
-   {
-      for (i = 0; i < NY; i++)
-      {
-     for (k = 0; k < NZ ; k++)
-        data_out[j][i][k] = 0;
-      }
-   }
+   //int i, j, k;
+   //int         data_out[NX][NY][NZ ]; /* output buffer */
+   //for (j = 0; j < NX; j++)
+   //{
+   //   for (i = 0; i < NY; i++)
+   //   {
+   //  for (k = 0; k < NZ ; k++)
+   //     data_out[j][i][k] = 0;
+   //   }
+   //}
    /*
     * Try block to detect exceptions raised by any of the calls inside it
     */
    //try
-   {
+   //{
       /*
        * Turn off the auto-printing when failure occurs so that we can
        * handle the errors appropriately
@@ -248,93 +249,90 @@ int main (void)
       /*
        * Open the specified file and the specified dataset in the file.
        */
-      H5File file( FILE_NAME, H5F_ACC_RDONLY );
+		 H5::H5File file( FILE_NAME, H5F_ACC_RDONLY );
       DataSet dataset = file.openDataSet( DATASET_NAME );
-      /*
-       * Get the class of the datatype that is used by the dataset.
-       */
-      H5T_class_t type_class = dataset.getTypeClass();
-      /*
-       * Get class of datatype and print message if it's an integer.
-       */
-      if( type_class == H5T_INTEGER )
-      {
-     cout << "Data set has INTEGER type" << endl;
-         /*
-      * Get the integer datatype
-          */
-     IntType intype = dataset.getIntType();
-         /*
-          * Get order of datatype and print message if it's a little endian.
-          */
-     H5std_string order_string;
-         H5T_order_t order = intype.getOrder( order_string );
-     cout << order_string << endl;
-         /*
-          * Get size of the data element stored in file and print it.
-          */
-         size_t size = intype.getSize();
-         cout << "Data size is " << size << endl;
-      }
-      /*
-       * Get dataspace of the dataset.
-       */
+
       DataSpace dataspace = dataset.getSpace();
       /*
        * Get the number of dimensions in the dataspace.
        */
-      int rank = dataspace.getSimpleExtentNdims();
+      int dimNums = dataspace.getSimpleExtentNdims();
+			cout<<"dimNums= "<<dimNums<<endl;
+			hsize_t *dims=new hsize_t[dimNums];
+			dataspace.getSimpleExtentDims(dims);
+			for(int i=0;i<dimNums;i++)
+			{
+				cout<<i<<"\t"<<dims[i]<<endl;
+			}
+
+			
+
+        int vds = 1;
+        for (size_t i = 0; i < dimNums; i++)
+        {
+            vds = vds * dims[i];
+        }
+			std::vector<double> data;
+        data.resize(vds);
+        dataset.read(data.data(), H5::PredType::NATIVE_DOUBLE);
+
+				std::ofstream fp("/home/sun/magnav/h5data.txt",std::ios::out);
+				for(int i=0;i<data.size();i++)
+				{
+					fp<<data[i]<<endl;
+				}
+				
       /*
        * Get the dimension size of each dimension in the dataspace and
        * display them.
        */
-      hsize_t dims_out[2];
-      int ndims = dataspace.getSimpleExtentDims( dims_out, NULL);
-      cout << "rank " << rank << ", dimensions " <<
-          (unsigned long)(dims_out[0]) << " x " <<
-          (unsigned long)(dims_out[1]) << endl;
+      //hsize_t dims_out[2];
+      //int ndims = dataspace.getSimpleExtentDims( dims_out, NULL);
+      //cout << "rank " << rank << ", dimensions " <<
+      //    (unsigned long)(dims_out[0]) << " x " <<
+      //    (unsigned long)(dims_out[1]) << endl;
       /*
        * Define hyperslab in the dataset; implicitly giving strike and
        * block NULL.
        */
-      hsize_t      offset[2];   // hyperslab offset in the file
-      hsize_t      count[2];    // size of the hyperslab in the file
-      offset[0] = 1;
-      offset[1] = 2;
-      count[0]  = NX_SUB;
-      count[1]  = NY_SUB;
-      dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
+      //hsize_t      offset[2];   // hyperslab offset in the file
+      //hsize_t      count[2];    // size of the hyperslab in the file
+      //offset[0] = 1;
+      //offset[1] = 2;
+      //count[0]  = NX_SUB;
+      //count[1]  = NY_SUB;
+      //dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
       /*
        * Define the memory dataspace.
        */
-      hsize_t     dimsm[3];              /* memory space dimensions */
-      dimsm[0] = NX;
-      dimsm[1] = NY;
-      dimsm[2] = NZ ;
-      DataSpace memspace( RANK_OUT, dimsm );
+      //hsize_t     dimsm[3];              /* memory space dimensions */
+      //dimsm[0] = NX;
+      //dimsm[1] = NY;
+      //dimsm[2] = NZ ;
+      //DataSpace memspace( RANK_OUT, dimsm );
       /*
        * Define memory hyperslab.
        */
-      hsize_t      offset_out[3];   // hyperslab offset in memory
-      hsize_t      count_out[3];    // size of the hyperslab in memory
-      offset_out[0] = 3;
-      offset_out[1] = 0;
-      offset_out[2] = 0;
-      count_out[0]  = NX_SUB;
-      count_out[1]  = NY_SUB;
-      count_out[2]  = 1;
-      memspace.selectHyperslab( H5S_SELECT_SET, count_out, offset_out );
+      //hsize_t      offset_out[3];   // hyperslab offset in memory
+      //hsize_t      count_out[3];    // size of the hyperslab in memory
+      //offset_out[0] = 3;
+      //offset_out[1] = 0;
+      //offset_out[2] = 0;
+      //count_out[0]  = NX_SUB;
+      //count_out[1]  = NY_SUB;
+      //count_out[2]  = 1;
+      //memspace.selectHyperslab( H5S_SELECT_SET, count_out, offset_out );
       /*
        * Read data from hyperslab in the file into the hyperslab in
        * memory and display the data.
        */
-      dataset.read( data_out, PredType::NATIVE_INT, memspace, dataspace );
-      for (j = 0; j < NX; j++)
-      {
-    for (i = 0; i < NY; i++)
-       cout << data_out[j][i][0] << " ";
-    cout << endl;
-      }
+      //dataset.read( data_out, PredType::NATIVE_INT, memspace, dataspace );
+      //for (j = 0; j < NX; j++)
+      //{
+    //for (i = 0; i < NY; i++)
+       //cout << data_out[j][i][0] << " ";
+    //cout << endl;
+      //}
       /*
        * 0 0 0 0 0 0 0
        * 0 0 0 0 0 0 0
@@ -344,7 +342,7 @@ int main (void)
        * 5 6 7 8 0 0 0
        * 0 0 0 0 0 0 0
        */
-   }  // end of try block
+   //}  // end of try block
    // catch failure caused by the H5File operations
    //catch( FileIException error )
    //{
