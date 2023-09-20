@@ -12,16 +12,18 @@
 #
 ************************************************/
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
-using std::cout;
-using std::endl;
+// using std::cout;
+// using std::endl;
 
-#include "mag_compensation/mag_compensation.hpp"
 #include "H5Cpp.h"
-using namespace H5;
+#include "mag_compensation/mag_compensation.hpp"
+// using namespace H5;
+using namespace magnav;
 
 /*
 using namespace magnav;
@@ -110,57 +112,61 @@ int main2()
 //	ifstream ifile;
 //	ifile.open("E:\\HRdataset\\butterworth\\input.txt");
 
-	vector<double> input, output;
-	double fps = 10;
+        vector<double> input, output;
+        double fps = 10;
 
-	const int N = 30;
-	//	
-	//for (int i = 0; i < 1000; i++)
-	//{
-	//	float x;
-	//	ifile >> x;
-	//	input.push_back(x);
-	//}
+        const int N = 30;
+        //
+        //for (int i = 0; i < 1000; i++)
+        //{
+        //	float x;
+        //	ifile >> x;
+        //	input.push_back(x);
+        //}
 
-	//Frequency bands is a vector of values - Lower Frequency Band and Higher Frequency Band
+        //Frequency bands is a vector of values - Lower Frequency Band and
+Higher Frequency Band
 
-	//First value is lower cutoff and second value is higher cutoff
-//	double FrequencyBands[2] = { 1.5/fps*2, 2.5/fps*2 };//these values are as a ratio of f/fs, where fs is sampling rate, and f is cutoff frequency
-	double FrequencyBands[2] = { 0.1,0.9 };//these values are as a ratio of f/fs, where fs is sampling rate, and f is cutoff frequency
-	//and therefore should lie in the range [0 1]
-	//Filter Order
+        //First value is lower cutoff and second value is higher cutoff
+//	double FrequencyBands[2] = { 1.5/fps*2, 2.5/fps*2 };//these values are
+as a ratio of f/fs, where fs is sampling rate, and f is cutoff frequency double
+FrequencyBands[2] = { 0.1,0.9 };//these values are as a ratio of f/fs, where fs
+is sampling rate, and f is cutoff frequency
+        //and therefore should lie in the range [0 1]
+        //Filter Order
 
-	int FiltOrd = 4;
+        int FiltOrd = 4;
 
-	//Pixel Time Series
+        //Pixel Time Series
 
-	//Create the variables for the numerator and denominator coefficients
-	vector<double> a;
-	vector<double> b;
-	//Pass Numerator Coefficients and Denominator Coefficients arrays into function, will return the same
+        //Create the variables for the numerator and denominator coefficients
+        vector<double> a;
+        vector<double> b;
+        //Pass Numerator Coefficients and Denominator Coefficients arrays into
+function, will return the same
 
-	vector<double> x(N);
-	vector<double> y(N);
+        vector<double> x(N);
+        vector<double> y(N);
 
-	for (int i = 0; i < N; i++)
-	{
+        for (int i = 0; i < N; i++)
+        {
 //		ifile >> x[i];
-		x[i]=i;
-	} 
+                x[i]=i;
+        }
 
-	//is A in matlab function and the numbers are correct
-	a = ComputeDenCoeffs(FiltOrd, FrequencyBands[0], FrequencyBands[1]);
+        //is A in matlab function and the numbers are correct
+        a = ComputeDenCoeffs(FiltOrd, FrequencyBands[0], FrequencyBands[1]);
 //	a.resize(a.size()-1);
-	cout<<"a="<<endl;
-	print(a);
+        cout<<"a="<<endl;
+        print(a);
 //	for (int k = 0; k<a.size(); k++)
 //	{
 //		printf("DenC is: %lf\n", a[k]);
 //	}
 
-	b = ComputeNumCoeffs(FiltOrd, FrequencyBands[0], FrequencyBands[1], a);
-	cout<<"b="<<endl;
-	print(b);
+        b = ComputeNumCoeffs(FiltOrd, FrequencyBands[0], FrequencyBands[1], a);
+        cout<<"b="<<endl;
+        print(b);
 //	for (int k = 0; k<b.size(); k++)
 //	{
 //		printf("NumC is: %lf\n", b[k]);
@@ -168,15 +174,15 @@ int main2()
 
 //	y = filter(x,b,a);
   filtfilt(b, a, x, y);
-	
-	cout<<"y="<<endl;
-	print(y);
 
-	a.resize(a.size()-1);
+        cout<<"y="<<endl;
+        print(y);
+
+        a.resize(a.size()-1);
   filtfilt(b, a, x, y);
-	
-	cout<<"y="<<endl;
-	print(y);
+
+        cout<<"y="<<endl;
+        print(y);
 
 //	ofstream ofile;
 //	ofile.open("E:\\HRdataset\\butterworth\\output.txt");
@@ -186,20 +192,20 @@ int main2()
 //	}
 //	ofile.close();
 
-	cout<<"x="<<endl;
-	print(x);
+        cout<<"x="<<endl;
+        print(x);
 
-	int n=5;
-	x.erase(x.begin(),x.begin()+n);
-	x.erase(x.end()-n,x.end());
+        int n=5;
+        x.erase(x.begin(),x.begin()+n);
+        x.erase(x.end()-n,x.end());
 
-	cout<<"x trim ="<<endl;
-	print(x);
+        cout<<"x trim ="<<endl;
+        print(x);
 
    Eigen::MatrixXf A(3,3);
    Eigen::VectorXf B(3);
    A << 1,2,3,  4,5,6,  7,8,10;
-	 Eigen::MatrixXf AA=A.transpose()*A+4.0*Eigen::MatrixXf::Identity(3,3);
+         Eigen::MatrixXf AA=A.transpose()*A+4.0*Eigen::MatrixXf::Identity(3,3);
    B << 3, 3, 4;
    std::cout << "Here is the matrix A:\n" << AA << std::endl;
    std::cout << "Here is the vector B:\n" << B << std::endl;
@@ -208,164 +214,244 @@ int main2()
    Eigen::Vector3f XX = AA.llt().solve(B);
    std::cout << "The solution is:\n" << XX << std::endl;
 
-	return 0;
+        return 0;
 }
 */
 
+// const H5std_string FILE_NAME("/home/sun/magnav/data/Flt1002_train.h5");
+// const H5std_string DATASET_NAME("flux_b_x");
+// const int NX_SUB = 3; // hyperslab dimensions
+// const int NY_SUB = 4;
+// const int NX = 7; // output buffer dimensions
+// const int NY = 7;
+// const int NZ = 3;
+// const int RANK_OUT = 3;
 
-const H5std_string FILE_NAME( "/home/sun/magnav/data/Flt1006_train.h5" );
-const H5std_string DATASET_NAME( "flux_a_x" );
-const int    NX_SUB = 3;    // hyperslab dimensions
-const int    NY_SUB = 4;
-const int    NX = 7;        // output buffer dimensions
-const int    NY = 7;
-const int    NZ = 3;
-const int    RANK_OUT = 3;
-int main (void)
-{
-   /*
-    * Output buffer initialization.
-    */
-   //int i, j, k;
-   //int         data_out[NX][NY][NZ ]; /* output buffer */
-   //for (j = 0; j < NX; j++)
-   //{
-   //   for (i = 0; i < NY; i++)
-   //   {
-   //  for (k = 0; k < NZ ; k++)
-   //     data_out[j][i][k] = 0;
-   //   }
-   //}
-   /*
-    * Try block to detect exceptions raised by any of the calls inside it
-    */
-   //try
-   //{
-      /*
-       * Turn off the auto-printing when failure occurs so that we can
-       * handle the errors appropriately
-       */
-//		 H5::Exception::dontPrint();
-      /*
-       * Open the specified file and the specified dataset in the file.
-       */
-		 H5::H5File file( FILE_NAME, H5F_ACC_RDONLY );
-      DataSet dataset = file.openDataSet( DATASET_NAME );
+void readH5Data(const int N, const H5::H5File &file, const std::string field,
+                std::vector<double> &data) {
+  // H5::H5File file(filename, H5F_ACC_RDONLY);
+  H5::DataSet dataset = file.openDataSet(field);
 
-      DataSpace dataspace = dataset.getSpace();
-      /*
-       * Get the number of dimensions in the dataspace.
-       */
-      int dimNums = dataspace.getSimpleExtentNdims();
-			cout<<"dimNums= "<<dimNums<<endl;
-			hsize_t *dims=new hsize_t[dimNums];
-			dataspace.getSimpleExtentDims(dims);
-			for(int i=0;i<dimNums;i++)
-			{
-				cout<<i<<"\t"<<dims[i]<<endl;
-			}
+  data.resize(N);
+  dataset.read(data.data(), H5::PredType::NATIVE_DOUBLE);
+}
 
-			
+void getFlightData(const std::string filename, H5Data &h5data) {
+  H5::H5File file(filename, H5F_ACC_RDONLY);
+  std::cout << "opening file: " << filename << std::endl;
+  H5::DataSet data_N = file.openDataSet("N");
+  data_N.read(&h5data.N, H5::PredType::NATIVE_INT64);
+  std::cout << "N=" << h5data.N << std::endl;
+  H5::DataSet data_dt = file.openDataSet("dt");
+  data_dt.read(&h5data.dt, H5::PredType::NATIVE_DOUBLE);
+  std::cout << "dt=" << h5data.dt << std::endl;
 
-        int vds = 1;
-        for (size_t i = 0; i < dimNums; i++)
-        {
-            vds = vds * dims[i];
-        }
-			std::vector<double> data;
-        data.resize(vds);
-        dataset.read(data.data(), H5::PredType::NATIVE_DOUBLE);
+  readH5Data(h5data.N, file, "line", h5data.line);
+  readH5Data(h5data.N, file, "flight", h5data.flight);
+  readH5Data(h5data.N, file, "tt", h5data.tt);
+  readH5Data(h5data.N, file, "utm_x", h5data.utm_x);
+  readH5Data(h5data.N, file, "utm_y", h5data.utm_y);
+  readH5Data(h5data.N, file, "utm_z", h5data.utm_z);
+  readH5Data(h5data.N, file, "msl", h5data.msl);
+  readH5Data(h5data.N, file, "lat", h5data.lat);
+  readH5Data(h5data.N, file, "lon", h5data.lon);
 
-				std::ofstream fp("/home/sun/magnav/h5data.txt",std::ios::out);
-				for(int i=0;i<data.size();i++)
-				{
-					fp<<data[i]<<endl;
-				}
-				
-      /*
-       * Get the dimension size of each dimension in the dataspace and
-       * display them.
-       */
-      //hsize_t dims_out[2];
-      //int ndims = dataspace.getSimpleExtentDims( dims_out, NULL);
-      //cout << "rank " << rank << ", dimensions " <<
-      //    (unsigned long)(dims_out[0]) << " x " <<
-      //    (unsigned long)(dims_out[1]) << endl;
-      /*
-       * Define hyperslab in the dataset; implicitly giving strike and
-       * block NULL.
-       */
-      //hsize_t      offset[2];   // hyperslab offset in the file
-      //hsize_t      count[2];    // size of the hyperslab in the file
-      //offset[0] = 1;
-      //offset[1] = 2;
-      //count[0]  = NX_SUB;
-      //count[1]  = NY_SUB;
-      //dataspace.selectHyperslab( H5S_SELECT_SET, count, offset );
-      /*
-       * Define the memory dataspace.
-       */
-      //hsize_t     dimsm[3];              /* memory space dimensions */
-      //dimsm[0] = NX;
-      //dimsm[1] = NY;
-      //dimsm[2] = NZ ;
-      //DataSpace memspace( RANK_OUT, dimsm );
-      /*
-       * Define memory hyperslab.
-       */
-      //hsize_t      offset_out[3];   // hyperslab offset in memory
-      //hsize_t      count_out[3];    // size of the hyperslab in memory
-      //offset_out[0] = 3;
-      //offset_out[1] = 0;
-      //offset_out[2] = 0;
-      //count_out[0]  = NX_SUB;
-      //count_out[1]  = NY_SUB;
-      //count_out[2]  = 1;
-      //memspace.selectHyperslab( H5S_SELECT_SET, count_out, offset_out );
-      /*
-       * Read data from hyperslab in the file into the hyperslab in
-       * memory and display the data.
-       */
-      //dataset.read( data_out, PredType::NATIVE_INT, memspace, dataspace );
-      //for (j = 0; j < NX; j++)
-      //{
-    //for (i = 0; i < NY; i++)
-       //cout << data_out[j][i][0] << " ";
-    //cout << endl;
-      //}
-      /*
-       * 0 0 0 0 0 0 0
-       * 0 0 0 0 0 0 0
-       * 0 0 0 0 0 0 0
-       * 3 4 5 6 0 0 0
-       * 4 5 6 7 0 0 0
-       * 5 6 7 8 0 0 0
-       * 0 0 0 0 0 0 0
-       */
-   //}  // end of try block
-   // catch failure caused by the H5File operations
-   //catch( FileIException error )
-   //{
-   //   error.printError();
-   //   return -1;
-   //}
-   //// catch failure caused by the DataSet operations
-   //catch( DataSetIException error )
-   //{
-   //   error.printError();
-   //   return -1;
-   //}
-   //// catch failure caused by the DataSpace operations
-   //catch( DataSpaceIException error )
-   //{
-   //   error.printError();
-   //   return -1;
-   //}
-   //// catch failure caused by the DataSpace operations
-   //catch( DataTypeIException error )
-   //{
-   //   error.printError();
-   //   return -1;
-   //}
-   return 0;  // successfully terminated
+  readH5Data(h5data.N, file, "baro", h5data.baro);
+  readH5Data(h5data.N, file, "radar", h5data.radar);
+  readH5Data(h5data.N, file, "topo", h5data.topo);
+  readH5Data(h5data.N, file, "dem", h5data.dem);
+  readH5Data(h5data.N, file, "drape", h5data.drape);
+
+  readH5Data(h5data.N, file, "ins_pitch", h5data.ins_pitch);
+  readH5Data(h5data.N, file, "ins_roll", h5data.ins_roll);
+  readH5Data(h5data.N, file, "ins_yaw", h5data.ins_yaw);
+  readH5Data(h5data.N, file, "diurnal", h5data.diurnal);
+
+  readH5Data(h5data.N, file, "mag_1_c", h5data.mag_1_c);
+  readH5Data(h5data.N, file, "mag_1_lag", h5data.mag_1_lag);
+  readH5Data(h5data.N, file, "mag_1_dc", h5data.mag_1_dc);
+  readH5Data(h5data.N, file, "mag_1_igrf", h5data.mag_1_igrf);
+  readH5Data(h5data.N, file, "mag_1_uc", h5data.mag_1_uc);
+
+  readH5Data(h5data.N, file, "mag_2_uc", h5data.mag_2_uc);
+  readH5Data(h5data.N, file, "mag_3_uc", h5data.mag_3_uc);
+  readH5Data(h5data.N, file, "mag_4_uc", h5data.mag_4_uc);
+  readH5Data(h5data.N, file, "mag_5_uc", h5data.mag_5_uc);
+
+  readH5Data(h5data.N, file, "flux_b_x", h5data.flux_b_x);
+  readH5Data(h5data.N, file, "flux_b_y", h5data.flux_b_y);
+  readH5Data(h5data.N, file, "flux_b_z", h5data.flux_b_z);
+  readH5Data(h5data.N, file, "flux_b_t", h5data.flux_b_t);
+
+  readH5Data(h5data.N, file, "flux_c_x", h5data.flux_c_x);
+  readH5Data(h5data.N, file, "flux_c_y", h5data.flux_c_y);
+  readH5Data(h5data.N, file, "flux_c_z", h5data.flux_c_z);
+  readH5Data(h5data.N, file, "flux_c_t", h5data.flux_c_t);
+
+  readH5Data(h5data.N, file, "flux_d_x", h5data.flux_d_x);
+  readH5Data(h5data.N, file, "flux_d_y", h5data.flux_d_y);
+  readH5Data(h5data.N, file, "flux_d_z", h5data.flux_d_z);
+  readH5Data(h5data.N, file, "flux_d_t", h5data.flux_d_t);
+
+  readH5Data(h5data.N, file, "ogs_mag", h5data.ogs_mag);
+  readH5Data(h5data.N, file, "ogs_alt", h5data.ogs_alt);
+
+  readH5Data(h5data.N, file, "ins_acc_x", h5data.ins_acc_x);
+  readH5Data(h5data.N, file, "ins_acc_y", h5data.ins_acc_y);
+  readH5Data(h5data.N, file, "ins_acc_z", h5data.ins_acc_z);
+  readH5Data(h5data.N, file, "ins_wander", h5data.ins_wander);
+  readH5Data(h5data.N, file, "ins_lat", h5data.ins_lat);
+  readH5Data(h5data.N, file, "ins_lon", h5data.ins_lon);
+  readH5Data(h5data.N, file, "ins_alt", h5data.ins_alt);
+  readH5Data(h5data.N, file, "ins_vn", h5data.ins_vn);
+  readH5Data(h5data.N, file, "ins_vw", h5data.ins_vw);
+  readH5Data(h5data.N, file, "ins_vu", h5data.ins_vu);
+
+  readH5Data(h5data.N, file, "pitch_rate", h5data.pitch_rate);
+  readH5Data(h5data.N, file, "roll_rate", h5data.roll_rate);
+  readH5Data(h5data.N, file, "yaw_rate", h5data.yaw_rate);
+  readH5Data(h5data.N, file, "lgtl_acc", h5data.lgtl_acc);
+  readH5Data(h5data.N, file, "ltrl_acc", h5data.ltrl_acc);
+  readH5Data(h5data.N, file, "nrml_acc", h5data.nrml_acc);
+
+  readH5Data(h5data.N, file, "tas", h5data.tas);
+  readH5Data(h5data.N, file, "pitot_p", h5data.pitot_p);
+  readH5Data(h5data.N, file, "static_p", h5data.static_p);
+  readH5Data(h5data.N, file, "total_p", h5data.total_p);
+
+  readH5Data(h5data.N, file, "cur_com_1", h5data.cur_com_1);
+  readH5Data(h5data.N, file, "cur_ac_hi", h5data.cur_ac_hi);
+  readH5Data(h5data.N, file, "cur_ac_lo", h5data.cur_ac_lo);
+  readH5Data(h5data.N, file, "cur_tank", h5data.cur_tank);
+  readH5Data(h5data.N, file, "cur_flap", h5data.cur_flap);
+  readH5Data(h5data.N, file, "cur_strb", h5data.cur_strb);
+  readH5Data(h5data.N, file, "cur_srvo_o", h5data.cur_srvo_o);
+  readH5Data(h5data.N, file, "cur_srvo_m", h5data.cur_srvo_m);
+  readH5Data(h5data.N, file, "cur_srvo_i", h5data.cur_srvo_i);
+  readH5Data(h5data.N, file, "cur_heat", h5data.cur_heat);
+  readH5Data(h5data.N, file, "cur_acpwr", h5data.cur_acpwr);
+  readH5Data(h5data.N, file, "cur_outpwr", h5data.cur_outpwr);
+  readH5Data(h5data.N, file, "cur_bat_1", h5data.cur_bat_1);
+  readH5Data(h5data.N, file, "cur_bat_2", h5data.cur_bat_2);
+
+  readH5Data(h5data.N, file, "vol_acpwr", h5data.vol_acpwr);
+  readH5Data(h5data.N, file, "vol_outpwr", h5data.vol_outpwr);
+  readH5Data(h5data.N, file, "vol_bat_1", h5data.vol_bat_1);
+  readH5Data(h5data.N, file, "vol_bat_2", h5data.vol_bat_2);
+  readH5Data(h5data.N, file, "vol_res_p", h5data.vol_res_p);
+  readH5Data(h5data.N, file, "vol_res_n", h5data.vol_res_n);
+  readH5Data(h5data.N, file, "vol_back_p", h5data.vol_back_p);
+  readH5Data(h5data.N, file, "vol_back_n", h5data.vol_back_n);
+  readH5Data(h5data.N, file, "vol_gyro_1", h5data.vol_gyro_1);
+  readH5Data(h5data.N, file, "vol_gyro_2", h5data.vol_gyro_2);
+  readH5Data(h5data.N, file, "vol_acc_p", h5data.vol_acc_p);
+  readH5Data(h5data.N, file, "vol_acc_n", h5data.vol_acc_n);
+  readH5Data(h5data.N, file, "vol_block", h5data.vol_block);
+  readH5Data(h5data.N, file, "vol_back", h5data.vol_back);
+  readH5Data(h5data.N, file, "vol_srvo", h5data.vol_srvo);
+  readH5Data(h5data.N, file, "vol_cabt", h5data.vol_cabt);
+  readH5Data(h5data.N, file, "vol_fan", h5data.vol_fan);
+}
+
+int main(void) {
+  // H5::H5File file(FILE_NAME, H5F_ACC_RDONLY);
+  // DataSet dataset = file.openDataSet(DATASET_NAME);
+  //
+  // DataSpace dataspace = dataset.getSpace();
+  // int dimNums = dataspace.getSimpleExtentNdims();
+  // cout << "dimNums= " << dimNums << endl;
+  // hsize_t *dims = new hsize_t[dimNums];
+  // dataspace.getSimpleExtentDims(dims);
+  // for (int i = 0; i < dimNums; i++) {
+  //  cout << i << "\t" << dims[i] << endl;
+  //}
+  //
+  // int vds = 1;
+  // for (size_t i = 0; i < dimNums; i++) {
+  //  vds = vds * dims[i];
+  //}
+  // std::vector<double> data;
+  // data.resize(vds);
+  // dataset.read(data.data(), H5::PredType::NATIVE_DOUBLE);
+  //
+  // std::ofstream fp("/home/sun/magnav/h5data.txt", std::ios::out);
+  // for (int i = 0; i < data.size(); i++) {
+  //  fp << data[i] << endl;
+  //}
+  // fp.close();
+
+  H5Data h5data1002, h5data1003;
+
+  getFlightData("/home/sun/magnav/data/Flt1002_train.h5", h5data1002);
+  getFlightData("/home/sun/magnav/data/Flt1003_train.h5", h5data1003);
+
+  // std::ofstream fp("/home/sun/magnav/h5data.txt", std::ios::out);
+  // for (int i = 0; i < h5data1002.line.size(); i++) {
+  //  fp << i << "\t" << h5data1002.line[i] << std::endl;
+  //}
+  // fp.close();
+
+  MagCompensation mag_comp;
+  H5Data out_data;
+  mag_comp.compensate(out_data, h5data1002, h5data1003);
+
+  using namespace H5;
+  const H5std_string FILE_NAME("SDS.h5");
+  const H5std_string DATASET_NAME("IntArray");
+  const int NX = 5; // dataset dimensions
+  const int NY = 6;
+  const int RANK = 2;
+  /*
+   * Data initialization.
+   */
+  int i, j;
+  int data[NX][NY]; // buffer for data to write
+  for (j = 0; j < NX; j++) {
+    for (i = 0; i < NY; i++)
+      data[j][i] = i + j;
+  }
+  /*
+   * 0 1 2 3 4 5
+   * 1 2 3 4 5 6
+   * 2 3 4 5 6 7
+   * 3 4 5 6 7 8
+   * 4 5 6 7 8 9
+   */
+  /*
+   * Create a new file using H5F_ACC_TRUNC access,
+   * default file creation properties, and default file
+   * access properties.
+   */
+  H5File file(FILE_NAME, H5F_ACC_TRUNC);
+
+  /*
+   * Define the size of the array and create the data space for fixed
+   *
+   * size dataset.
+   */
+  hsize_t dimsf[2]; // dataset dimensions
+  dimsf[0] = NX;
+  dimsf[1] = NY;
+  DataSpace dataspace(RANK, dimsf);
+
+  /*
+   * Define datatype for the data in the file.
+   * We will store little endian INT numbers.
+   */
+  IntType datatype(PredType::NATIVE_INT);
+  datatype.setOrder(H5T_ORDER_LE);
+
+  /*
+   * Create a new dataset within the file using defined dataspace and
+   * datatype and default dataset creation properties.
+   */
+  DataSet dataset = file.createDataSet(DATASET_NAME, datatype, dataspace);
+
+  /*
+   * Write the data to the dataset using default memory space, file
+   * space, and transfer properties.
+   */
+  dataset.write(data, PredType::NATIVE_INT);
+
+  return 0;
 }
