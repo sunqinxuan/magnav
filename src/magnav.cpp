@@ -395,21 +395,21 @@ int main(void) {
   H5Data out_data;
   mag_comp.compensate(out_data, h5data1002, h5data1003);
 
-  using namespace H5;
-  const H5std_string FILE_NAME("SDS.h5");
-  const H5std_string DATASET_NAME("IntArray");
-  const int NX = 5; // dataset dimensions
-  const int NY = 6;
-  const int RANK = 2;
+  //using namespace H5;
+  //const H5std_string FILE_NAME("SDS.h5");
+  //const H5std_string DATASET_NAME("IntArray");
+  //const int NX = 5; // dataset dimensions
+  //const int NY = 6;
+  //const int RANK = 2;
   /*
    * Data initialization.
    */
-  int i, j;
-  int data[NX][NY]; // buffer for data to write
-  for (j = 0; j < NX; j++) {
-    for (i = 0; i < NY; i++)
-      data[j][i] = i + j;
-  }
+  //int i, j;
+  //int data[NX][NY]; // buffer for data to write
+  //for (j = 0; j < NX; j++) {
+  //  for (i = 0; i < NY; i++)
+  //    data[j][i] = i + j;
+  //}
   /*
    * 0 1 2 3 4 5
    * 1 2 3 4 5 6
@@ -422,36 +422,39 @@ int main(void) {
    * default file creation properties, and default file
    * access properties.
    */
-  H5File file(FILE_NAME, H5F_ACC_TRUNC);
+	H5::H5File file("data_TL.h5", H5F_ACC_TRUNC);
 
   /*
    * Define the size of the array and create the data space for fixed
    *
    * size dataset.
    */
-  hsize_t dimsf[2]; // dataset dimensions
-  dimsf[0] = NX;
-  dimsf[1] = NY;
-  DataSpace dataspace(RANK, dimsf);
+  hsize_t dimsf[1]; // dataset dimensions
+  dimsf[0] = out_data.mag_1_igrf.size();
+  //dimsf[1] = NY;
+	H5::DataSpace dataspace(1, dimsf);
 
   /*
    * Define datatype for the data in the file.
    * We will store little endian INT numbers.
    */
-  IntType datatype(PredType::NATIVE_INT);
-  datatype.setOrder(H5T_ORDER_LE);
+  //IntType datatype(PredType::NATIVE_INT);
+	H5::DataType datatype(H5::PredType::NATIVE_DOUBLE);
 
-  /*
-   * Create a new dataset within the file using defined dataspace and
-   * datatype and default dataset creation properties.
-   */
-  DataSet dataset = file.createDataSet(DATASET_NAME, datatype, dataspace);
+	H5::DataSet dataset = file.createDataSet("tt", datatype, dataspace);
+  dataset.write(out_data.tt.data(), H5::PredType::NATIVE_DOUBLE);
 
-  /*
-   * Write the data to the dataset using default memory space, file
-   * space, and transfer properties.
-   */
-  dataset.write(data, PredType::NATIVE_INT);
+	dataset = file.createDataSet("slg", datatype, dataspace);
+  dataset.write(out_data.mag_1_igrf.data(), H5::PredType::NATIVE_DOUBLE);
+
+	dataset = file.createDataSet("mag_3_c", datatype, dataspace);
+  dataset.write(out_data.mag_3_uc.data(), H5::PredType::NATIVE_DOUBLE);
+
+	dataset = file.createDataSet("mag_4_c", datatype, dataspace);
+  dataset.write(out_data.mag_4_uc.data(), H5::PredType::NATIVE_DOUBLE);
+
+	dataset = file.createDataSet("mag_5_c", datatype, dataspace);
+  dataset.write(out_data.mag_5_uc.data(), H5::PredType::NATIVE_DOUBLE);
 
   return 0;
 }
