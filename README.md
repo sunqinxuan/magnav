@@ -23,7 +23,7 @@ make
 
 Download the dataset from [here](https://magnav.mit.edu/) and put them into a `data` directory.
 
-Remember to change the dataset path in `main.cpp` file.
+Remember to change the dataset path in `src/magnav.cpp` file.
 
 ### run TL-model 
 
