@@ -5,10 +5,11 @@ addpath('..\data')
 addpath('..\src')
 
 %% input
-data_original_filename = 'Flt1003-train.h5';
-line_number = 1003.08; % The line number of data to be filtered
+data_original_filename = 'Flt1003_train.h5';
+line_number = 1003.02; % 1003.08 1003.04
 
 load('save_nn.mat')
+add_channel_num= [30 62 37 90 27 36 32 26];
 
 %% organize to data_x, data_y
 % no embedding yet
@@ -21,7 +22,7 @@ mag_5_c = h5read(TL_filename_name,'/mag_5_c');
 
 %%
 data_info = h5info(data_original_filename);
-data_line = h5read(data_original_filename,'/tie_line');
+data_line = h5read(data_original_filename,'/line');
 i1 = find(data_line==line_number, 1 );
 i2 = find(data_line==line_number, 1, 'last' );
 
