@@ -52,7 +52,7 @@ public:
    * Create Tolles-Lawson `A` matrix using vector magnetometer measurements.
    * Optionally returns the magnitude and derivatives of total field.
    */
-  bool createMatrixA(std::vector<std::vector<double>> TL_A_,
+  bool createMatrixA(std::vector<std::vector<double>> &TL_A_,
                      const std::vector<double> &Bx,
                      const std::vector<double> &By,
                      const std::vector<double> &Bz, std::vector<double> &Bt,

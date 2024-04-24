@@ -42,7 +42,7 @@ void MagCompensation::compensate(H5Data &out_data, const H5Data &calib_data,
   std::cout << "i1 = " << i1 << std::endl;
   std::cout << "i2 = " << i2 << std::endl;
 
-  std::vector<double> Bx, By, Bz, B3, B4, B5;
+  std::vector<double> Bx, By, Bz, B3, B4, B5, Be;
   for (int i = i1; i <= i2; i++) {
     Bx.push_back(calib_data.flux_b_x[i]);
     By.push_back(calib_data.flux_b_y[i]);
@@ -50,14 +50,15 @@ void MagCompensation::compensate(H5Data &out_data, const H5Data &calib_data,
     B3.push_back(calib_data.mag_3_uc[i]);
     B4.push_back(calib_data.mag_4_uc[i]);
     B5.push_back(calib_data.mag_5_uc[i]);
+		Be.push_back(calib_data.mag_1_uc[i]);
   }
 
   std::vector<double> Bt; // empty Bt;
 
   std::vector<double> TL_coef_3, TL_coef_4, TL_coef_5;
-  tl_model_->createCoeff(TL_coef_3, Bx, By, Bz, B3, Bt);
-  tl_model_->createCoeff(TL_coef_4, Bx, By, Bz, B4, Bt);
-  tl_model_->createCoeff(TL_coef_5, Bx, By, Bz, B5, Bt);
+  tl_model_->createCoeff(TL_coef_3, Bx, By, Bz, B3, Be, Bt);
+  tl_model_->createCoeff(TL_coef_4, Bx, By, Bz, B4, Be, Bt);
+  tl_model_->createCoeff(TL_coef_5, Bx, By, Bz, B5, Be, Bt);
 
   std::vector<double> BBx, BBy, BBz;
   for (int i = 0; i < xyz_data.flux_b_x.size(); i++) {
@@ -74,29 +75,35 @@ void MagCompensation::compensate(H5Data &out_data, const H5Data &calib_data,
   product(comp_part_4, TL_A, TL_coef_4);
   product(comp_part_5, TL_A, TL_coef_5);
 
-  std::vector<double> dm_comp_part_3, dm_comp_part_4, dm_comp_part_5;
-  demean(dm_comp_part_3, comp_part_3);
-  demean(dm_comp_part_4, comp_part_4);
-  demean(dm_comp_part_5, comp_part_5);
+  //std::vector<double> dm_comp_part_3, dm_comp_part_4, dm_comp_part_5;
+  //demean(dm_comp_part_3, comp_part_3);
+  //demean(dm_comp_part_4, comp_part_4);
+  //demean(dm_comp_part_5, comp_part_5);
+//
+  //std::vector<double> mag_3_c, mag_4_c, mag_5_c;
+  //substract(mag_3_c, xyz_data.mag_3_uc, dm_comp_part_3);
+  //substract(mag_4_c, xyz_data.mag_4_uc, dm_comp_part_4);
+  //substract(mag_5_c, xyz_data.mag_5_uc, dm_comp_part_5);
+//
+  //std::vector<double> correction;
+  //substract(correction, xyz_data.mag_1_dc, xyz_data.mag_1_igrf);
+//
+  //substract(mag_3_c, mag_3_c, xyz_data.diurnal);
+  //substract(mag_4_c, mag_4_c, xyz_data.diurnal);
+  //substract(mag_5_c, mag_5_c, xyz_data.diurnal);
+//
+  //substract(mag_3_c, mag_3_c, correction);
+  //substract(mag_4_c, mag_4_c, correction);
+  //substract(mag_5_c, mag_5_c, correction);
 
   std::vector<double> mag_3_c, mag_4_c, mag_5_c;
-  substract(mag_3_c, xyz_data.mag_3_uc, dm_comp_part_3);
-  substract(mag_4_c, xyz_data.mag_4_uc, dm_comp_part_4);
-  substract(mag_5_c, xyz_data.mag_5_uc, dm_comp_part_5);
-
-  std::vector<double> correction;
-  substract(correction, xyz_data.mag_1_dc, xyz_data.mag_1_igrf);
-
-  substract(mag_3_c, mag_3_c, xyz_data.diurnal);
-  substract(mag_4_c, mag_4_c, xyz_data.diurnal);
-  substract(mag_5_c, mag_5_c, xyz_data.diurnal);
-
-  substract(mag_3_c, mag_3_c, correction);
-  substract(mag_4_c, mag_4_c, correction);
-  substract(mag_5_c, mag_5_c, correction);
+  substract(mag_3_c, xyz_data.mag_3_uc, comp_part_3);
+  substract(mag_4_c, xyz_data.mag_4_uc, comp_part_4);
+  substract(mag_5_c, xyz_data.mag_5_uc, comp_part_5);
 
   out_data.tt = xyz_data.tt;
-  out_data.mag_1_igrf = xyz_data.mag_1_igrf;
+  //out_data.mag_1_igrf = xyz_data.mag_1_igrf;
+  out_data.mag_1_uc = xyz_data.mag_1_uc;
   out_data.mag_3_uc = mag_3_c;
   out_data.mag_4_uc = mag_4_c;
   out_data.mag_5_uc = mag_5_c;
@@ -120,6 +127,9 @@ void MagCompensation::product(Vector &result, const Matrix &A,
 }
 
 void MagCompensation::demean(Vector &result, const Vector &v) {
+//	result=v;
+//	return;
+
   double mean = 0.0;
   for (size_t i = 0; i < v.size(); i++) {
     mean += v[i];

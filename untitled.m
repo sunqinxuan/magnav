@@ -1,14 +1,14 @@
 clear;clc;
 close all;
 
-addpath('..\data')
-addpath('..\src')
+addpath('.\data')
+addpath('.\src')
 
 %% input
 data_original_filename = 'Flt1003_train.h5';
 line_number = 1003.02; % 1003.08 1003.04
 
-load('save_nn.mat')
+load('.\data\save_nn.mat')
 add_channel_num= [30 62 37 90 27 36 32 26];
 
 %% organize to data_x, data_y

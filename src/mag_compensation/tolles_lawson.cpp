@@ -250,7 +250,7 @@ bool TollesLawson::createMatrixA(std::vector<std::vector<double>> &TL_A_,
 double TollesLawson::createCoeff(
     std::vector<double> &TL_beta_, const std::vector<double> &Bx,
     const std::vector<double> &By, const std::vector<double> &Bz,
-    const std::vector<double> &B, std::vector<double> &Bt,
+    const std::vector<double> &B, const std::vector<double> &Be, std::vector<double> &Bt,
     const std::unordered_set<TLterm> &terms, const double lambda,
     const double pass1, const double pass2, const double fs, const int pole,
     const int trim, const double Bt_scale) {
@@ -271,7 +271,7 @@ double TollesLawson::createCoeff(
     }
   } else {
     if (Bx.size() != Bt.size()) {
-      ERROR("[TollesLawson][createMatrixA] Bx Bt sizes not equal!");
+      ERROR("[TollesLawson][createCoeff] Bx Bt sizes not equal!");
       return false;
     }
   }
@@ -290,49 +290,28 @@ double TollesLawson::createCoeff(
     return false;
   }
 
-  // std::ofstream fp("/home/sun/magnav/TL_A.txt", std::ios::out);
-  // fp << "TL_A_ = " << std::endl;
-  // for (int i = 0; i < TL_A_.size(); i++) {
-  //  for (int j = 0; j < TL_A_[i].size(); j++) {
-  //    fp << TL_A_[i][j] << " ";
-  //  }
-  //  fp << std::endl;
-  //}
-  // fp.close();
-
   std::vector<std::vector<double>> TL_A_filt_;
   std::vector<double> B_filt;
 
-  if (perform_filter) {
-    // filter columns of matrix A and the measurements B
-    // and trim edges;
-    TL_A_filt_.resize(TL_A_.size());
-    for (size_t i = 0; i < TL_A_.size(); i++) {
-      bwbp_filter(TL_A_filt_[i], TL_A_[i], pass1, pass2, pole, trim);
-    }
-    bwbp_filter(B_filt, B, pass1, pass2, pole, trim);
-  } else {
-    TL_A_filt_ = TL_A_;
-    B_filt = B;
-  }
-
-  // fp.open("/home/sun/magnav/B_filt.txt", std::ios::out);
-  // fp << "B_filt = " << std::endl;
-  // for (int i = 0; i < B_filt.size(); i++) {
-  //  fp << B_filt[i] << " ";
-  //}
-  // fp << std::endl;
-  // fp.close();
-
-  // fp.open("/home/sun/magnav/TL_A_filt_.txt", std::ios::out);
-  // fp << "TL_A_filt_ = " << std::endl;
-  // for (int i = 0; i < TL_A_filt_.size(); i++) {
-  //  for (int j = 0; j < TL_A_filt_[i].size(); j++) {
-  //    fp << TL_A_filt_[i][j] << " ";
+	// bandpass filter;
+  //if (perform_filter) {
+  //  // filter columns of matrix A and the measurements B
+  //  // and trim edges;
+  //  TL_A_filt_.resize(TL_A_.size());
+  //  for (size_t i = 0; i < TL_A_.size(); i++) {
+  //    bwbp_filter(TL_A_filt_[i], TL_A_[i], pass1, pass2, pole, trim);
   //  }
-  //  fp << std::endl;
+  //  bwbp_filter(B_filt, B, pass1, pass2, pole, trim);
+  //} else {
+  //  TL_A_filt_ = TL_A_;
+  //  B_filt = B;
   //}
-  // fp.close();
+
+	for(int i=0;i<B.size();i++)
+	{
+		B_filt.push_back(B[i]-Be[i]);
+	}
+	TL_A_filt_=TL_A_;
 
   // linear regression to get TL coefficients;
   std::vector<double> residual;

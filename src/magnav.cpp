@@ -25,199 +25,6 @@
 // using namespace H5;
 using namespace magnav;
 
-/*
-using namespace magnav;
-using namespace std;
-
-enum TLterm { PERMANENT, INDUCED, EDDY, FDM, BIAS };
-
-void print(const auto &set) {
-  for (const auto &elem : set)
-    std::cout << elem << "; ";
-  std::cout << '\n';
-}
-
-
-int main1(int argc, char *argv[]) {
-
-  std::vector<double> b_coeff;
-  //	b_coeff.push_back(4.0);
-  //	b_coeff.push_back(5.0);
-  //	b_coeff.push_back(6.0);
-  vectord a_coeff;
-  //	a_coeff.push_back(1.0);
-  //	a_coeff.push_back(2.0);
-  //	a_coeff.push_back(3.0);
-
-  //coeff_ab(4, 0.1, 0.9, 10, a_coeff, b_coeff);
-
-  b_coeff = {0.4328, 0, -1.7314, 0, 2.5971, 0, -1.7314, 0, 0.4328};
-
-  a_coeff = {1.0000, 0.0000,  -2.3695, -0.0000, 2.3140,
-             0.0000, -1.0547, -0.0000, 0.1874};
-
-  cout << endl << "a= " << endl;
-  print(a_coeff);
-  cout << endl;
-
-  cout << endl << "b= " << endl;
-  print(b_coeff);
-  cout << endl;
-
-  vectord input_signal;
-  for (int i = 0; i < 30; i++)
-    input_signal.push_back(i);
-
-  cout << endl << "x= " << endl;
-  print(input_signal);
-  cout << endl;
-
-  //	input_signal.push_back(1);
-  //	input_signal.push_back(2);
-  //	input_signal.push_back(3);
-  //	input_signal.push_back(4);
-  //	input_signal.push_back(5);
-  //	input_signal.push_back(6);
-  //	input_signal.push_back(7);
-  //	input_signal.push_back(8);
-
-  vectord y_filtfilt_ori;
-  y_filtfilt_ori.push_back(-6731884.25000000);
-  y_filtfilt_ori.push_back(7501778.75000000);
-  y_filtfilt_ori.push_back(-2757230.25000000);
-  y_filtfilt_ori.push_back(-662443.250000000);
-  y_filtfilt_ori.push_back(1360955.75000000);
-  y_filtfilt_ori.push_back(-686678.250000000);
-  y_filtfilt_ori.push_back(4135.75000000000);
-  y_filtfilt_ori.push_back(227147.750000000);
-
-  // vectord y_filter_out; vectord zi = { 0 };
-  // filter(b_coeff, a_coeff, input_signal, y_filter_out, zi);
-  // Assert::IsTrue(compare(y_filter_out, y_filter_ori, 0.0001));
-  // assert(compare(y_filter_out, y_filter_ori, 0.0001));
-
-  vectord y_filtfilt_out;
-  filtfilt(b_coeff, a_coeff, input_signal, y_filtfilt_out);
-  // Assert::IsTrue(compare(y_filtfilt_out, y_filtfilt_ori, 0.0001));
-  // assert(compare(y_filter_out, y_filter_ori, 0.0001));
-
-  std::cout << "y_filtfilt_out: " << endl;
-  print(y_filtfilt_out);
-
-  return 0;
-}
-
-int main2()
-{
-//	ifstream ifile;
-//	ifile.open("E:\\HRdataset\\butterworth\\input.txt");
-
-        vector<double> input, output;
-        double fps = 10;
-
-        const int N = 30;
-        //
-        //for (int i = 0; i < 1000; i++)
-        //{
-        //	float x;
-        //	ifile >> x;
-        //	input.push_back(x);
-        //}
-
-        //Frequency bands is a vector of values - Lower Frequency Band and
-Higher Frequency Band
-
-        //First value is lower cutoff and second value is higher cutoff
-//	double FrequencyBands[2] = { 1.5/fps*2, 2.5/fps*2 };//these values are
-as a ratio of f/fs, where fs is sampling rate, and f is cutoff frequency double
-FrequencyBands[2] = { 0.1,0.9 };//these values are as a ratio of f/fs, where fs
-is sampling rate, and f is cutoff frequency
-        //and therefore should lie in the range [0 1]
-        //Filter Order
-
-        int FiltOrd = 4;
-
-        //Pixel Time Series
-
-        //Create the variables for the numerator and denominator coefficients
-        vector<double> a;
-        vector<double> b;
-        //Pass Numerator Coefficients and Denominator Coefficients arrays into
-function, will return the same
-
-        vector<double> x(N);
-        vector<double> y(N);
-
-        for (int i = 0; i < N; i++)
-        {
-//		ifile >> x[i];
-                x[i]=i;
-        }
-
-        //is A in matlab function and the numbers are correct
-        a = ComputeDenCoeffs(FiltOrd, FrequencyBands[0], FrequencyBands[1]);
-//	a.resize(a.size()-1);
-        cout<<"a="<<endl;
-        print(a);
-//	for (int k = 0; k<a.size(); k++)
-//	{
-//		printf("DenC is: %lf\n", a[k]);
-//	}
-
-        b = ComputeNumCoeffs(FiltOrd, FrequencyBands[0], FrequencyBands[1], a);
-        cout<<"b="<<endl;
-        print(b);
-//	for (int k = 0; k<b.size(); k++)
-//	{
-//		printf("NumC is: %lf\n", b[k]);
-//	}
-
-//	y = filter(x,b,a);
-  filtfilt(b, a, x, y);
-
-        cout<<"y="<<endl;
-        print(y);
-
-        a.resize(a.size()-1);
-  filtfilt(b, a, x, y);
-
-        cout<<"y="<<endl;
-        print(y);
-
-//	ofstream ofile;
-//	ofile.open("E:\\HRdataset\\butterworth\\output.txt");
-//	for (int i = 0; i < N; i++)
-//	{
-//		ofile << y[i] << endl;
-//	}
-//	ofile.close();
-
-        cout<<"x="<<endl;
-        print(x);
-
-        int n=5;
-        x.erase(x.begin(),x.begin()+n);
-        x.erase(x.end()-n,x.end());
-
-        cout<<"x trim ="<<endl;
-        print(x);
-
-   Eigen::MatrixXf A(3,3);
-   Eigen::VectorXf B(3);
-   A << 1,2,3,  4,5,6,  7,8,10;
-         Eigen::MatrixXf AA=A.transpose()*A+4.0*Eigen::MatrixXf::Identity(3,3);
-   B << 3, 3, 4;
-   std::cout << "Here is the matrix A:\n" << AA << std::endl;
-   std::cout << "Here is the vector B:\n" << B << std::endl;
-   Eigen::Vector3f X = AA.colPivHouseholderQr().solve(B);
-   std::cout << "The solution is:\n" << X << std::endl;
-   Eigen::Vector3f XX = AA.llt().solve(B);
-   std::cout << "The solution is:\n" << XX << std::endl;
-
-        return 0;
-}
-*/
-
 // const H5std_string FILE_NAME("/home/sun/magnav/data/Flt1002_train.h5");
 // const H5std_string DATASET_NAME("flux_b_x");
 // const int NX_SUB = 3; // hyperslab dimensions
@@ -354,32 +161,6 @@ void getFlightData(const std::string filename, H5Data &h5data) {
 }
 
 int main(void) {
-  // H5::H5File file(FILE_NAME, H5F_ACC_RDONLY);
-  // DataSet dataset = file.openDataSet(DATASET_NAME);
-  //
-  // DataSpace dataspace = dataset.getSpace();
-  // int dimNums = dataspace.getSimpleExtentNdims();
-  // cout << "dimNums= " << dimNums << endl;
-  // hsize_t *dims = new hsize_t[dimNums];
-  // dataspace.getSimpleExtentDims(dims);
-  // for (int i = 0; i < dimNums; i++) {
-  //  cout << i << "\t" << dims[i] << endl;
-  //}
-  //
-  // int vds = 1;
-  // for (size_t i = 0; i < dimNums; i++) {
-  //  vds = vds * dims[i];
-  //}
-  // std::vector<double> data;
-  // data.resize(vds);
-  // dataset.read(data.data(), H5::PredType::NATIVE_DOUBLE);
-  //
-  // std::ofstream fp("/home/sun/magnav/h5data.txt", std::ios::out);
-  // for (int i = 0; i < data.size(); i++) {
-  //  fp << data[i] << endl;
-  //}
-  // fp.close();
-
   H5Data h5data1002, h5data1003;
 
   getFlightData("/home/sun/magnav/data/Flt1002_train.h5", h5data1002);
@@ -430,7 +211,7 @@ int main(void) {
    * size dataset.
    */
   hsize_t dimsf[1]; // dataset dimensions
-  dimsf[0] = out_data.mag_1_igrf.size();
+  dimsf[0] = out_data.tt.size();
   //dimsf[1] = NY;
 	H5::DataSpace dataspace(1, dimsf);
 
@@ -445,7 +226,7 @@ int main(void) {
   dataset.write(out_data.tt.data(), H5::PredType::NATIVE_DOUBLE);
 
 	dataset = file.createDataSet("slg", datatype, dataspace);
-  dataset.write(out_data.mag_1_igrf.data(), H5::PredType::NATIVE_DOUBLE);
+  dataset.write(out_data.mag_1_uc.data(), H5::PredType::NATIVE_DOUBLE);
 
 	dataset = file.createDataSet("mag_3_c", datatype, dataspace);
   dataset.write(out_data.mag_3_uc.data(), H5::PredType::NATIVE_DOUBLE);

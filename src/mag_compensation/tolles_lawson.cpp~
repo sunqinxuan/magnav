@@ -145,15 +145,15 @@ bool TollesLawson::createMatrixA(std::vector<std::vector<double>> &TL_A_,
     TL_A_.resize(idx + 1, tmp);
   }
 
-  std::ofstream fp("/home/sun/magnav/creat_TL_A.txt", std::ios::out);
-  fp << "TL_A_ = " << std::endl;
-  for (int i = 0; i < TL_A_.size(); i++) {
-    for (int j = 0; j < TL_A_[i].size(); j++) {
-      fp << TL_A_[i][j] << " ";
-    }
-    fp << std::endl;
-  }
-  fp.close();
+  // std::ofstream fp("/home/sun/magnav/creat_TL_A.txt", std::ios::out);
+  // fp << "TL_A_ = " << std::endl;
+  // for (int i = 0; i < TL_A_.size(); i++) {
+  //  for (int j = 0; j < TL_A_[i].size(); j++) {
+  //    fp << TL_A_[i][j] << " ";
+  //  }
+  //  fp << std::endl;
+  //}
+  // fp.close();
 
   //	Eigen::MatrixXd A_perm, A_ind, A_eddy, A_fdm, A_bias;
   //  TL_A_.resize(0, 0);
@@ -250,7 +250,7 @@ bool TollesLawson::createMatrixA(std::vector<std::vector<double>> &TL_A_,
 double TollesLawson::createCoeff(
     std::vector<double> &TL_beta_, const std::vector<double> &Bx,
     const std::vector<double> &By, const std::vector<double> &Bz,
-    const std::vector<double> &B, std::vector<double> &Bt,
+    const std::vector<double> &B, const std::vector<double> &Be, std::vector<double> &Bt,
     const std::unordered_set<TLterm> &terms, const double lambda,
     const double pass1, const double pass2, const double fs, const int pole,
     const int trim, const double Bt_scale) {
@@ -271,7 +271,7 @@ double TollesLawson::createCoeff(
     }
   } else {
     if (Bx.size() != Bt.size()) {
-      ERROR("[TollesLawson][createMatrixA] Bx Bt sizes not equal!");
+      ERROR("[TollesLawson][createCoeff] Bx Bt sizes not equal!");
       return false;
     }
   }
@@ -290,15 +290,15 @@ double TollesLawson::createCoeff(
     return false;
   }
 
-  std::ofstream fp("/home/sun/magnav/TL_A.txt", std::ios::out);
-  fp << "TL_A_ = " << std::endl;
-  for (int i = 0; i < TL_A_.size(); i++) {
-    for (int j = 0; j < TL_A_[i].size(); j++) {
-      fp << TL_A_[i][j] << " ";
-    }
-    fp << std::endl;
-  }
-  fp.close();
+  // std::ofstream fp("/home/sun/magnav/TL_A.txt", std::ios::out);
+  // fp << "TL_A_ = " << std::endl;
+  // for (int i = 0; i < TL_A_.size(); i++) {
+  //  for (int j = 0; j < TL_A_[i].size(); j++) {
+  //    fp << TL_A_[i][j] << " ";
+  //  }
+  //  fp << std::endl;
+  //}
+  // fp.close();
 
   std::vector<std::vector<double>> TL_A_filt_;
   std::vector<double> B_filt;
@@ -316,23 +316,23 @@ double TollesLawson::createCoeff(
     B_filt = B;
   }
 
-  fp.open("/home/sun/magnav/B_filt.txt", std::ios::out);
-  fp << "B_filt = " << std::endl;
-  for (int i = 0; i < B_filt.size(); i++) {
-    fp << B_filt[i] << " ";
-  }
-  fp << std::endl;
-  fp.close();
+  // fp.open("/home/sun/magnav/B_filt.txt", std::ios::out);
+  // fp << "B_filt = " << std::endl;
+  // for (int i = 0; i < B_filt.size(); i++) {
+  //  fp << B_filt[i] << " ";
+  //}
+  // fp << std::endl;
+  // fp.close();
 
-  fp.open("/home/sun/magnav/TL_A_filt_.txt", std::ios::out);
-  fp << "TL_A_filt_ = " << std::endl;
-  for (int i = 0; i < TL_A_filt_.size(); i++) {
-    for (int j = 0; j < TL_A_filt_[i].size(); j++) {
-      fp << TL_A_filt_[i][j] << " ";
-    }
-    fp << std::endl;
-  }
-  fp.close();
+  // fp.open("/home/sun/magnav/TL_A_filt_.txt", std::ios::out);
+  // fp << "TL_A_filt_ = " << std::endl;
+  // for (int i = 0; i < TL_A_filt_.size(); i++) {
+  //  for (int j = 0; j < TL_A_filt_[i].size(); j++) {
+  //    fp << TL_A_filt_[i][j] << " ";
+  //  }
+  //  fp << std::endl;
+  //}
+  // fp.close();
 
   // linear regression to get TL coefficients;
   std::vector<double> residual;
@@ -454,11 +454,11 @@ void TollesLawson::linear_regression(std::vector<double> &coeff,
   }
   Eigen::MatrixXd ATA =
       A.transpose() * A + lambda * Eigen::MatrixXd::Identity(M, M);
-  std::cout << "ATA = " << std::endl << ATA << std::endl;
+  // std::cout << "ATA = " << std::endl << ATA << std::endl;
   Eigen::MatrixXd ATb = A.transpose() * b;
-  std::cout << "ATb = " << std::endl << ATb.transpose() << std::endl;
+  // std::cout << "ATb = " << std::endl << ATb.transpose() << std::endl;
   Eigen::VectorXd x = ATA.llt().solve(ATb);
-  std::cout << "x = " << std::endl << x.transpose() << std::endl;
+  // std::cout << "x = " << std::endl << x.transpose() << std::endl;
 
   coeff.resize(M);
   for (int i = 0; i < M; i++) {

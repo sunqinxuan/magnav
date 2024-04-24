@@ -67,7 +67,7 @@ public:
   double createCoeff(
       std::vector<double> &TL_beta_, const std::vector<double> &Bx,
       const std::vector<double> &By, const std::vector<double> &Bz,
-      const std::vector<double> &B, std::vector<double> &Bt,
+      const std::vector<double> &B, const std::vector<double> &Be, std::vector<double> &Bt,
       const std::unordered_set<TLterm> &terms = {PERMANENT, INDUCED, EDDY},
       const double lambda = 0.0, const double pass1 = 0.1,
       const double pass2 = 0.9, const double fs = 10.0, const int pole = 4,
