@@ -1,21 +1,20 @@
 clear;clc;
-% close all;
+close all;
 
 addpath('.\data')
 addpath('.\src')
 
 %% input
 data_original_filename = 'Flt1003_train.h5';
-line_number = 1003.02; % 1003.08 1003.04
+line_number = 1003.08; % 1003.02 1003.08 1003.04
 
-load('.\data\save_nn.mat')
-add_channel_num= [30 62 37 90 27 36 32 26];
+% load('.\data\save_nn.mat')
+% add_channel_num= [30 62 37 90 27 36 32 26];
 
 %% organize to data_x, data_y
 % no embedding yet
 TL_filename_name = './build/data_TL.h5';
-tt = h5read(TL_filename_name,'/tt');
-slg = h5read(TL_filename_name,'/slg');
+
 mag_3_c = h5read(TL_filename_name,'/mag_3_c');
 mag_4_c = h5read(TL_filename_name,'/mag_4_c');
 mag_5_c = h5read(TL_filename_name,'/mag_5_c');
@@ -26,9 +25,11 @@ data_line = h5read(data_original_filename,'/line');
 i1 = find(data_line==line_number, 1 );
 i2 = find(data_line==line_number, 1, 'last' );
 
-%%
+tt = h5read(data_original_filename,'/tt');
 tt = tt(i1:i2);
-slg = slg(i1:i2,:);
+
+%%
+
 mag_3_c = mag_3_c(i1:i2,:);
 mag_4_c = mag_4_c(i1:i2,:);
 mag_5_c = mag_5_c(i1:i2,:);
@@ -45,7 +46,7 @@ mag_1_dc = mag_1_dc(i1:i2,:);
 mag_1_igrf = mag_1_igrf(i1:i2,:);
 
 %%
-half_input_wid=2;
+% half_input_wid=2;
 % y_real = slg';
 % y_real = y_real(half_input_wid+1:end-half_input_wid);
 y_real = mag_1_uc';

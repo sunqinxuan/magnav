@@ -16,6 +16,209 @@
 
 namespace magnav {
 
+bool TollesLawson::createMatrixA_Vector(
+    std::vector<std::vector<double>> &TL_A_, const std::vector<double> &Bx,
+    const std::vector<double> &By, const std::vector<double> &Bz,
+    const std::unordered_set<TLterm> &terms) {
+  if (!(Bx.size() == By.size() && Bx.size() == Bz.size())) {
+    ERROR("[TollesLawson][createMatrixA] Bx By Bz sizes not equal!");
+    return false;
+  }
+  if (terms.empty()) {
+    ERROR("[TollesLawson][createMatrixA] terms empty!");
+    return false;
+  }
+
+  int N = Bx.size();
+
+  std::vector<double> Bx_dot, By_dot, Bz_dot;
+  fdm(Bx_dot, Bx);
+  fdm(By_dot, By);
+  fdm(Bz_dot, Bz);
+
+  TL_A_.clear();
+
+  if (terms.find(PERMANENT) != terms.end()) {
+    TL_A_.resize(3);
+    TL_A_[0].clear();
+    TL_A_[1].clear();
+    TL_A_[2].clear();
+    for (int i = 0; i < N; i++) {
+      TL_A_[0].push_back(1);
+      TL_A_[0].push_back(0);
+      TL_A_[0].push_back(0);
+
+      TL_A_[1].push_back(0);
+      TL_A_[1].push_back(1);
+      TL_A_[1].push_back(0);
+
+      TL_A_[2].push_back(0);
+      TL_A_[2].push_back(0);
+      TL_A_[2].push_back(1);
+    }
+  }
+
+  if (terms.find(INDUCED) != terms.end()) {
+    int idx = TL_A_.size();
+    TL_A_.resize(idx + 6);
+    TL_A_[idx].clear();
+    TL_A_[idx + 1].clear();
+    TL_A_[idx + 2].clear();
+    TL_A_[idx + 3].clear();
+    TL_A_[idx + 4].clear();
+    TL_A_[idx + 5].clear();
+    for (int i = 0; i < N; i++) {
+      TL_A_[idx].push_back(Bx[i]);
+      TL_A_[idx].push_back(0);
+      TL_A_[idx].push_back(0);
+
+      TL_A_[idx + 1].push_back(By[i]);
+      TL_A_[idx + 1].push_back(Bx[i]);
+      TL_A_[idx + 1].push_back(0);
+
+      TL_A_[idx + 2].push_back(Bz[i]);
+      TL_A_[idx + 2].push_back(0);
+      TL_A_[idx + 2].push_back(Bx[i]);
+
+      TL_A_[idx + 3].push_back(0);
+      TL_A_[idx + 3].push_back(By[i]);
+      TL_A_[idx + 3].push_back(0);
+
+      TL_A_[idx + 4].push_back(0);
+      TL_A_[idx + 4].push_back(Bz[i]);
+      TL_A_[idx + 4].push_back(By[i]);
+
+      TL_A_[idx + 5].push_back(0);
+      TL_A_[idx + 5].push_back(0);
+      TL_A_[idx + 5].push_back(Bz[i]);
+    }
+  }
+
+  if (terms.find(EDDY) != terms.end()) {
+    int idx = TL_A_.size();
+    TL_A_.resize(idx + 9);
+    TL_A_[idx].clear();
+    TL_A_[idx + 1].clear();
+    TL_A_[idx + 2].clear();
+    TL_A_[idx + 3].clear();
+    TL_A_[idx + 4].clear();
+    TL_A_[idx + 5].clear();
+    TL_A_[idx + 6].clear();
+    TL_A_[idx + 7].clear();
+    TL_A_[idx + 8].clear();
+    for (int i = 0; i < N; i++) {
+      TL_A_[idx].push_back(Bx_dot[i]);
+      TL_A_[idx].push_back(0);
+      TL_A_[idx].push_back(0);
+
+      TL_A_[idx + 1].push_back(By_dot[i]);
+      TL_A_[idx + 1].push_back(0);
+      TL_A_[idx + 1].push_back(0);
+
+      TL_A_[idx + 2].push_back(Bz_dot[i]);
+      TL_A_[idx + 2].push_back(0);
+      TL_A_[idx + 2].push_back(0);
+
+      TL_A_[idx + 3].push_back(0);
+      TL_A_[idx + 3].push_back(Bx_dot[i]);
+      TL_A_[idx + 3].push_back(0);
+
+      TL_A_[idx + 4].push_back(0);
+      TL_A_[idx + 4].push_back(By_dot[i]);
+      TL_A_[idx + 4].push_back(0);
+
+      TL_A_[idx + 5].push_back(0);
+      TL_A_[idx + 5].push_back(Bz_dot[i]);
+      TL_A_[idx + 5].push_back(0);
+
+      TL_A_[idx + 6].push_back(0);
+      TL_A_[idx + 6].push_back(0);
+      TL_A_[idx + 6].push_back(Bx_dot[i]);
+
+      TL_A_[idx + 7].push_back(0);
+      TL_A_[idx + 7].push_back(0);
+      TL_A_[idx + 7].push_back(By_dot[i]);
+
+      TL_A_[idx + 8].push_back(0);
+      TL_A_[idx + 8].push_back(0);
+      TL_A_[idx + 8].push_back(Bz_dot[i]);
+    }
+  }
+
+  return true;
+}
+
+double TollesLawson::createCoeff_Vector(
+    std::vector<double> &TL_beta_, const std::vector<double> &Bx,
+    const std::vector<double> &By, const std::vector<double> &Bz,
+    const std::vector<double> &Bex, const std::vector<double> &Bey,
+    const std::vector<double> &Bez,
+    const std::unordered_set<TLterm> &terms) {
+  if (!(Bx.size() == By.size() && Bx.size() == Bz.size())) {
+    ERROR("[TollesLawson][createCoeff] Bx By Bz sizes not equal!");
+    return false;
+  }
+  if (terms.empty()) {
+    ERROR("[TollesLawson][createCoeff] terms empty!");
+    return false;
+  }
+
+  // if (Bt.empty()) {
+  //  Bt.resize(Bx.size());
+  //  for (size_t i = 0; i < Bx.size(); i++) {
+  //    Bt[i] = sqrt(Bx[i] * Bx[i] + By[i] * By[i] + Bz[i] * Bz[i]);
+  //  }
+  //} else {
+  //  if (Bx.size() != Bt.size()) {
+  //    ERROR("[TollesLawson][createCoeff] Bx Bt sizes not equal!");
+  //    return false;
+  //  }
+  //}
+
+  // bool perform_filter;
+  // if ((pass1 > 0 && pass1 < fs / 2.0) || (pass2 > 0 && pass2 < fs / 2.0)) {
+  //  perform_filter = true;
+  //} else {
+  //  perform_filter = false;
+  //  INFO("not filtering (or trimming) Tolles-Lawson data.");
+  //}
+
+  std::vector<std::vector<double>> TL_A_;
+  if (!createMatrixA_Vector(TL_A_, Bx, By, Bz, terms)) {
+    ERROR("[TollesLawson][createCoeff] error calculating matrix TL_A_!");
+    return false;
+  }
+
+  std::vector<double> Bt, Be;
+  stack_vector(Bt, Bx, By, Bz);
+  stack_vector(Be, Bex, Bey, Bez);
+
+  std::vector<std::vector<double>> TL_A_filt_;
+  std::vector<double> B_filt;
+
+  for (int i = 0; i < Bt.size(); i++) {
+    B_filt.push_back(Bt[i] - Be[i]);
+  }
+  TL_A_filt_ = TL_A_;
+
+  // linear regression to get TL coefficients;
+  std::vector<double> residual;
+  linear_regression(TL_beta_, residual, B_filt, TL_A_filt_, 0);
+
+  // compute TL fit error variance;
+  double sum = std::accumulate(std::begin(residual), std::end(residual), 0.0);
+  double mean = sum / residual.size();
+  double variance = 0.0;
+  for (size_t i = 0; i < residual.size(); i++) {
+    variance = variance + pow(residual[i] - mean, 2);
+  }
+  variance = variance / residual.size();
+  INFO("TL fit error residual: ", mean);
+  INFO("TL fit error variance: ", variance, "\n");
+
+  return variance;
+}
+
 bool TollesLawson::createMatrixA(std::vector<std::vector<double>> &TL_A_,
                                  const std::vector<double> &Bx,
                                  const std::vector<double> &By,
@@ -79,22 +282,22 @@ bool TollesLawson::createMatrixA(std::vector<std::vector<double>> &TL_A_,
       Bx_hat_Bz_dot(N), By_hat_Bx_dot(N), By_hat_By_dot(N), By_hat_Bz_dot(N),
       Bz_hat_Bx_dot(N), Bz_hat_By_dot(N), Bz_hat_Bz_dot(N);
   for (int i = 0; i < N; i++) {
-    Bx_hat_Bx[i] = Bx_hat[i] * Bx[i] / Bt_mean;
-    Bx_hat_By[i] = Bx_hat[i] * By[i] / Bt_mean;
-    Bx_hat_Bz[i] = Bx_hat[i] * Bz[i] / Bt_mean;
-    By_hat_By[i] = By_hat[i] * By[i] / Bt_mean;
-    By_hat_Bz[i] = By_hat[i] * Bz[i] / Bt_mean;
-    Bz_hat_Bz[i] = Bz_hat[i] * Bz[i] / Bt_mean;
+    Bx_hat_Bx[i] = Bx_hat[i] * Bx[i]; // / Bt_mean;
+    Bx_hat_By[i] = Bx_hat[i] * By[i]; // / Bt_mean;
+    Bx_hat_Bz[i] = Bx_hat[i] * Bz[i]; // / Bt_mean;
+    By_hat_By[i] = By_hat[i] * By[i]; // / Bt_mean;
+    By_hat_Bz[i] = By_hat[i] * Bz[i]; // / Bt_mean;
+    Bz_hat_Bz[i] = Bz_hat[i] * Bz[i]; // / Bt_mean;
 
-    Bx_hat_Bx_dot[i] = Bx_hat[i] * Bx_dot[i] / Bt_mean;
-    Bx_hat_By_dot[i] = Bx_hat[i] * By_dot[i] / Bt_mean;
-    Bx_hat_Bz_dot[i] = Bx_hat[i] * Bz_dot[i] / Bt_mean;
-    By_hat_Bx_dot[i] = By_hat[i] * Bx_dot[i] / Bt_mean;
-    By_hat_By_dot[i] = By_hat[i] * By_dot[i] / Bt_mean;
-    By_hat_Bz_dot[i] = By_hat[i] * Bz_dot[i] / Bt_mean;
-    Bz_hat_Bx_dot[i] = Bz_hat[i] * Bx_dot[i] / Bt_mean;
-    Bz_hat_By_dot[i] = Bz_hat[i] * By_dot[i] / Bt_mean;
-    Bz_hat_Bz_dot[i] = Bz_hat[i] * Bz_dot[i] / Bt_mean;
+    Bx_hat_Bx_dot[i] = Bx_hat[i] * Bx_dot[i]; // / Bt_mean;
+    Bx_hat_By_dot[i] = Bx_hat[i] * By_dot[i]; // / Bt_mean;
+    Bx_hat_Bz_dot[i] = Bx_hat[i] * Bz_dot[i]; // / Bt_mean;
+    By_hat_Bx_dot[i] = By_hat[i] * Bx_dot[i]; // / Bt_mean;
+    By_hat_By_dot[i] = By_hat[i] * By_dot[i]; // / Bt_mean;
+    By_hat_Bz_dot[i] = By_hat[i] * Bz_dot[i]; // / Bt_mean;
+    Bz_hat_Bx_dot[i] = Bz_hat[i] * Bx_dot[i]; // / Bt_mean;
+    Bz_hat_By_dot[i] = Bz_hat[i] * By_dot[i]; // / Bt_mean;
+    Bz_hat_Bz_dot[i] = Bz_hat[i] * Bz_dot[i]; // / Bt_mean;
   }
 
   TL_A_.clear();
@@ -145,115 +348,16 @@ bool TollesLawson::createMatrixA(std::vector<std::vector<double>> &TL_A_,
     TL_A_.resize(idx + 1, tmp);
   }
 
-  // std::ofstream fp("/home/sun/magnav/creat_TL_A.txt", std::ios::out);
-  // fp << "TL_A_ = " << std::endl;
-  // for (int i = 0; i < TL_A_.size(); i++) {
-  //  for (int j = 0; j < TL_A_[i].size(); j++) {
-  //    fp << TL_A_[i][j] << " ";
-  //  }
-  //  fp << std::endl;
-  //}
-  // fp.close();
-
-  //	Eigen::MatrixXd A_perm, A_ind, A_eddy, A_fdm, A_bias;
-  //  TL_A_.resize(0, 0);
-  //
-  //  if (terms.find(PERMANENT) != terms.end()) {
-  //    A_perm.resize(N, 3);
-  //    for (int i = 0; i < N; i++) {
-  //      A_perm(i, 0) = Bx_hat[i];
-  //      A_perm(i, 1) = By_hat[i];
-  //      A_perm(i, 2) = Bz_hat[i];
-  //    }
-  //    // if(TL_A_.rows()==0)
-  //    {
-  //      // TL_A_.resize(N,A_perm.cols());
-  //      TL_A_ = A_perm;
-  //    }
-  //  }
-  //
-  //  if (terms.find(INDUCED) != terms.end()) {
-  //    A_ind.resize(N, 6);
-  //    for (int i = 0; i < N; i++) {
-  //      A_ind(i, 0) = Bx_hat_Bx[i];
-  //      A_ind(i, 1) = Bx_hat_By[i];
-  //      A_ind(i, 2) = Bx_hat_Bz[i];
-  //      A_ind(i, 3) = By_hat_By[i];
-  //      A_ind(i, 4) = By_hat_Bz[i];
-  //      A_ind(i, 5) = Bz_hat_Bz[i];
-  //    }
-  //    if (TL_A_.rows() == 0) {
-  //      TL_A_ = A_ind;
-  //    } else {
-  //      Eigen::MatrixXd tmp(N, TL_A_.cols() + A_ind.cols());
-  //      tmp.leftCols(TL_A_.cols()) = TL_A_;
-  //      tmp.rightCols(A_ind.cols()) = A_ind;
-  //      TL_A_ = tmp;
-  //    }
-  //  }
-  //
-  //  if (terms.find(EDDY) != terms.end()) {
-  //    A_eddy.resize(N, 9);
-  //    for (int i = 0; i < N; i++) {
-  //      A_eddy(i, 0) = Bx_hat_Bx_dot[i];
-  //      A_eddy(i, 1) = Bx_hat_By_dot[i];
-  //      A_eddy(i, 2) = Bx_hat_Bz_dot[i];
-  //      A_eddy(i, 3) = By_hat_Bx_dot[i];
-  //      A_eddy(i, 4) = By_hat_By_dot[i];
-  //      A_eddy(i, 5) = By_hat_Bz_dot[i];
-  //      A_eddy(i, 6) = Bz_hat_Bx_dot[i];
-  //      A_eddy(i, 7) = Bz_hat_By_dot[i];
-  //      A_eddy(i, 8) = Bz_hat_Bz_dot[i];
-  //    }
-  //    if (TL_A_.rows() == 0) {
-  //      TL_A_ = A_eddy;
-  //    } else {
-  //      Eigen::MatrixXd tmp(N, TL_A_.cols() + A_eddy.cols());
-  //      tmp.leftCols(TL_A_.cols()) = TL_A_;
-  //      tmp.rightCols(A_eddy.cols()) = A_eddy;
-  //      TL_A_ = tmp;
-  //    }
-  //  }
-  //
-  //  if (terms.find(FDM) != terms.end()) {
-  //    A_fdm.resize(N, 3);
-  //    for (int i = 0; i < N; i++) {
-  //      A_fdm(i, 0) = Bx_dot[i];
-  //      A_fdm(i, 1) = By_dot[i];
-  //      A_fdm(i, 2) = Bz_dot[i];
-  //    }
-  //    if (TL_A_.rows() == 0) {
-  //      TL_A_ = A_fdm;
-  //    } else {
-  //      Eigen::MatrixXd tmp(N, TL_A_.cols() + A_fdm.cols());
-  //      tmp.leftCols(TL_A_.cols()) = TL_A_;
-  //      tmp.rightCols(A_fdm.cols()) = A_fdm;
-  //      TL_A_ = tmp;
-  //    }
-  //  }
-  //
-  //  if (terms.find(BIAS) != terms.end()) {
-  //    A_bias.setOnes(N, 1);
-  //    if (TL_A_.rows() == 0) {
-  //      TL_A_ = A_bias;
-  //    } else {
-  //      Eigen::MatrixXd tmp(N, TL_A_.cols() + A_bias.cols());
-  //      tmp.leftCols(TL_A_.cols()) = TL_A_;
-  //      tmp.rightCols(A_bias.cols()) = A_bias;
-  //      TL_A_ = tmp;
-  //    }
-  //  }
-
   return true;
 }
 
 double TollesLawson::createCoeff(
     std::vector<double> &TL_beta_, const std::vector<double> &Bx,
     const std::vector<double> &By, const std::vector<double> &Bz,
-    const std::vector<double> &B, const std::vector<double> &Be, std::vector<double> &Bt,
-    const std::unordered_set<TLterm> &terms, const double lambda,
-    const double pass1, const double pass2, const double fs, const int pole,
-    const int trim, const double Bt_scale) {
+    const std::vector<double> &B, const std::vector<double> &Be,
+    std::vector<double> &Bt, const std::unordered_set<TLterm> &terms,
+    const double lambda, const double pass1, const double pass2,
+    const double fs, const int pole, const int trim, const double Bt_scale) {
   if (!(Bx.size() == By.size() && Bx.size() == Bz.size() &&
         Bx.size() == B.size())) {
     ERROR("[TollesLawson][createCoeff] Bx By Bz B sizes not equal!");
@@ -293,25 +397,26 @@ double TollesLawson::createCoeff(
   std::vector<std::vector<double>> TL_A_filt_;
   std::vector<double> B_filt;
 
-	// bandpass filter;
-  //if (perform_filter) {
-  //  // filter columns of matrix A and the measurements B
-  //  // and trim edges;
-  //  TL_A_filt_.resize(TL_A_.size());
-  //  for (size_t i = 0; i < TL_A_.size(); i++) {
-  //    bwbp_filter(TL_A_filt_[i], TL_A_[i], pass1, pass2, pole, trim);
-  //  }
-  //  bwbp_filter(B_filt, B, pass1, pass2, pole, trim);
-  //} else {
-  //  TL_A_filt_ = TL_A_;
-  //  B_filt = B;
-  //}
-
-	for(int i=0;i<B.size();i++)
-	{
-		B_filt.push_back(B[i]-Be[i]);
-	}
-	TL_A_filt_=TL_A_;
+  if (false) {
+    if (perform_filter) {
+      // bandpass filter;
+      // filter columns of matrix A and the measurements B
+      // and trim edges;
+      TL_A_filt_.resize(TL_A_.size());
+      for (size_t i = 0; i < TL_A_.size(); i++) {
+        bwbp_filter(TL_A_filt_[i], TL_A_[i], pass1, pass2, pole, trim);
+      }
+      bwbp_filter(B_filt, B, pass1, pass2, pole, trim);
+    } else {
+      TL_A_filt_ = TL_A_;
+      B_filt = B;
+    }
+  } else {
+    for (int i = 0; i < B.size(); i++) {
+      B_filt.push_back(B[i] - Be[i]);
+    }
+    TL_A_filt_ = TL_A_;
+  }
 
   // linear regression to get TL coefficients;
   std::vector<double> residual;
@@ -325,7 +430,8 @@ double TollesLawson::createCoeff(
     variance = variance + pow(residual[i] - mean, 2);
   }
   variance = variance / residual.size();
-  INFO("TL fit error variance: ", variance);
+  INFO("TL fit error residual: ", mean);
+  INFO("TL fit error variance: ", variance, "\n");
 
   return variance;
 }
@@ -432,7 +538,7 @@ void TollesLawson::linear_regression(std::vector<double> &coeff,
     }
   }
   Eigen::MatrixXd ATA =
-      A.transpose() * A + lambda * Eigen::MatrixXd::Identity(M, M);
+      A.transpose() * A; // + lambda * Eigen::MatrixXd::Identity(M, M);
   // std::cout << "ATA = " << std::endl << ATA << std::endl;
   Eigen::MatrixXd ATb = A.transpose() * b;
   // std::cout << "ATb = " << std::endl << ATb.transpose() << std::endl;
@@ -449,6 +555,22 @@ void TollesLawson::linear_regression(std::vector<double> &coeff,
   residual.resize(N);
   for (int i = 0; i < N; i++) {
     residual[i] = delta(i);
+  }
+}
+
+void TollesLawson::stack_vector(std::vector<double> &result,
+                                const std::vector<double> &x,
+                                const std::vector<double> &y,
+                                const std::vector<double> &z) {
+  if (!(x.size() == y.size() && x.size() == z.size())) {
+    ERROR("[TollesLawson][stack_vector] x y z sizes not equal!");
+    return ;
+  }
+  result.clear();
+  for (size_t i = 0; i < x.size(); i++) {
+    result.push_back(x[i]);
+    result.push_back(y[i]);
+    result.push_back(z[i]);
   }
 }
 

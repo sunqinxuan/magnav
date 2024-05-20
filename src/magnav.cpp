@@ -43,6 +43,20 @@ void readH5Data(const int N, const H5::H5File &file, const std::string field,
   dataset.read(data.data(), H5::PredType::NATIVE_DOUBLE);
 }
 
+void writeH5Data(
+    H5::H5File &file, const std::string field,
+    const std::vector<double>
+        &data) //, const H5::DataType &datatype, const H5::DataSpace &dataspace)
+{
+  hsize_t dimsf[1]; // dataset dimensions
+  dimsf[0] = data.size();
+  H5::DataSpace dataspace(1, dimsf);
+  H5::DataType datatype(H5::PredType::NATIVE_DOUBLE);
+
+  H5::DataSet dataset = file.createDataSet(field, datatype, dataspace);
+  dataset.write(data.data(), datatype);
+}
+
 void getFlightData(const std::string filename, H5Data &h5data) {
   H5::H5File file(filename, H5F_ACC_RDONLY);
   std::cout << "opening file: " << filename << std::endl;
@@ -166,76 +180,51 @@ int main(void) {
   getFlightData("/home/sun/magnav/data/Flt1002_train.h5", h5data1002);
   getFlightData("/home/sun/magnav/data/Flt1003_train.h5", h5data1003);
 
-  // std::ofstream fp("/home/sun/magnav/h5data.txt", std::ios::out);
-  // for (int i = 0; i < h5data1002.line.size(); i++) {
-  //  fp << i << "\t" << h5data1002.line[i] << std::endl;
-  //}
-  // fp.close();
-
   MagCompensation mag_comp;
   H5Data out_data;
   mag_comp.compensate(out_data, h5data1002, h5data1003);
+  mag_comp.compensateVector(out_data, h5data1002, h5data1003);
+  //mag_comp.compensateVector_Component(out_data, h5data1002, h5data1003);
 
-  //using namespace H5;
-  //const H5std_string FILE_NAME("SDS.h5");
-  //const H5std_string DATASET_NAME("IntArray");
-  //const int NX = 5; // dataset dimensions
-  //const int NY = 6;
-  //const int RANK = 2;
-  /*
-   * Data initialization.
-   */
-  //int i, j;
-  //int data[NX][NY]; // buffer for data to write
-  //for (j = 0; j < NX; j++) {
-  //  for (i = 0; i < NY; i++)
-  //    data[j][i] = i + j;
-  //}
-  /*
-   * 0 1 2 3 4 5
-   * 1 2 3 4 5 6
-   * 2 3 4 5 6 7
-   * 3 4 5 6 7 8
-   * 4 5 6 7 8 9
-   */
-  /*
-   * Create a new file using H5F_ACC_TRUNC access,
-   * default file creation properties, and default file
-   * access properties.
-   */
-	H5::H5File file("data_TL.h5", H5F_ACC_TRUNC);
+  H5::H5File file("data_TL.h5", H5F_ACC_TRUNC);
+  // hsize_t dimsf[1]; // dataset dimensions
+  // dimsf[0] = out_data.tt.size();
+  //// dimsf[1] = NY;
+  // H5::DataSpace dataspace(1, dimsf);
+  //// IntType datatype(PredType::NATIVE_INT);
+  // H5::DataType datatype(H5::PredType::NATIVE_DOUBLE);
 
-  /*
-   * Define the size of the array and create the data space for fixed
-   *
-   * size dataset.
-   */
-  hsize_t dimsf[1]; // dataset dimensions
-  dimsf[0] = out_data.tt.size();
-  //dimsf[1] = NY;
-	H5::DataSpace dataspace(1, dimsf);
+  writeH5Data(file, "tt", out_data.tt);             //,datatype, dataspace);
+  writeH5Data(file, "mag_1_uc", out_data.mag_1_uc); //,datatype, dataspace);
+  writeH5Data(file, "mag_3_c", out_data.mag_3_uc);  //,datatype, dataspace);
+  writeH5Data(file, "mag_4_c", out_data.mag_4_uc);  //,datatype, dataspace);
+  writeH5Data(file, "mag_5_c", out_data.mag_5_uc);  //,datatype, dataspace);
+  writeH5Data(file, "flux_c_t", out_data.flux_c_t); //,datatype, dataspace);
+  writeH5Data(file, "flux_c_x", out_data.flux_c_x); //,datatype, dataspace);
+  writeH5Data(file, "flux_c_y", out_data.flux_c_y); //,datatype, dataspace);
+  writeH5Data(file, "flux_c_z", out_data.flux_c_z); //,datatype, dataspace);
+  writeH5Data(file, "flux_d_t", out_data.flux_d_t); //,datatype, dataspace);
+  writeH5Data(file, "flux_d_x", out_data.flux_d_x); //,datatype, dataspace);
+  writeH5Data(file, "flux_d_y", out_data.flux_d_y); //,datatype, dataspace);
+  writeH5Data(file, "flux_d_z", out_data.flux_d_z); //,datatype, dataspace);
 
-  /*
-   * Define datatype for the data in the file.
-   * We will store little endian INT numbers.
-   */
-  //IntType datatype(PredType::NATIVE_INT);
-	H5::DataType datatype(H5::PredType::NATIVE_DOUBLE);
-
-	H5::DataSet dataset = file.createDataSet("tt", datatype, dataspace);
-  dataset.write(out_data.tt.data(), H5::PredType::NATIVE_DOUBLE);
-
-	dataset = file.createDataSet("slg", datatype, dataspace);
-  dataset.write(out_data.mag_1_uc.data(), H5::PredType::NATIVE_DOUBLE);
-
-	dataset = file.createDataSet("mag_3_c", datatype, dataspace);
-  dataset.write(out_data.mag_3_uc.data(), H5::PredType::NATIVE_DOUBLE);
-
-	dataset = file.createDataSet("mag_4_c", datatype, dataspace);
-  dataset.write(out_data.mag_4_uc.data(), H5::PredType::NATIVE_DOUBLE);
-
-	dataset = file.createDataSet("mag_5_c", datatype, dataspace);
-  dataset.write(out_data.mag_5_uc.data(), H5::PredType::NATIVE_DOUBLE);
+  // H5::DataSet dataset = file.createDataSet("tt", datatype, dataspace);
+  // dataset.write(out_data.tt.data(), H5::PredType::NATIVE_DOUBLE);
+  //
+  // dataset = file.createDataSet("mag_3_c", datatype, dataspace);
+  // dataset.write(out_data.mag_3_uc.data(), H5::PredType::NATIVE_DOUBLE);
+  //
+  // dataset = file.createDataSet("mag_4_c", datatype, dataspace);
+  // dataset.write(out_data.mag_4_uc.data(), H5::PredType::NATIVE_DOUBLE);
+  //
+  // dataset = file.createDataSet("mag_5_c", datatype, dataspace);
+  // dataset.write(out_data.mag_5_uc.data(), H5::PredType::NATIVE_DOUBLE);
+  //
+  // dataset = file.createDataSet("flux_c_t", datatype, dataspace);
+  // dataset.write(out_data.flux_c_t.data(), H5::PredType::NATIVE_DOUBLE);
+  //
+  // dataset = file.createDataSet("flux_d_t", datatype, dataspace);
+  // dataset.write(out_data.flux_d_t.data(), H5::PredType::NATIVE_DOUBLE);
 
   return 0;
 }

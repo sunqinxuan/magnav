@@ -149,11 +149,16 @@ public:
 
   void compensate(H5Data &out_data, const H5Data &calib_data,
                   const H5Data &xyz_data);
+  void compensateVector(H5Data &out_data, const H5Data &calib_data,
+                        const H5Data &xyz_data);
+  void compensateVector_Component(H5Data &out_data, const H5Data &calib_data,
+                                  const H5Data &xyz_data);
 
 private:
   void product(Vector &result, const Matrix &A, const Vector &b);
   void demean(Vector &result, const Vector &v);
   void substract(Vector &result, const Vector &a, const Vector &b);
+  void split_vector(const Vector &pile, Vector &x, Vector &y, Vector &z);
 
 private:
   std::shared_ptr<TollesLawson> tl_model_;
