@@ -1,3 +1,0 @@
-mag 3 - ensemble rmse on 1003.020000 = 511.981056
-mag 4 - ensemble rmse on 1003.020000 = 286.990646
-mag 5 - ensemble rmse on 1003.020000 = 102.920974

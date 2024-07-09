@@ -1,9 +1,0 @@
-y_real=detrend(y_real);
-y_val_3=detrend(y_val_3);
-y_val_4=detrend(y_val_4);
-y_val_5=detrend(y_val_5);
-
-
-mag 3 - ensemble rmse on 1003.020000 = 82.726413
-mag 4 - ensemble rmse on 1003.020000 = 70.017450
-mag 5 - ensemble rmse on 1003.020000 = 41.410441
