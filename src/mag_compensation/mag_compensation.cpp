@@ -118,19 +118,20 @@ void MagCompensation::compensateVector_Component(H5Data &out_data,
   out_data.flux_d_y = flux_d_y_comp;
   out_data.flux_d_z = flux_d_z_comp;
 
-	std::vector<double> flux_c_t_comp,flux_d_t_comp;
-	for(int i=0;i<flux_c_x_comp.size();i++)
-	{
-		flux_c_t_comp.push_back(sqrt(flux_c_x_comp[i]*flux_c_x_comp[i]+flux_c_y_comp[i]*flux_c_y_comp[i]+flux_c_z_comp[i]*flux_c_z_comp[i]));
-	}
-	for(int i=0;i<flux_d_x_comp.size();i++)
-	{
-		flux_d_t_comp.push_back(sqrt(flux_d_x_comp[i]*flux_d_x_comp[i]+flux_d_y_comp[i]*flux_d_y_comp[i]+flux_d_z_comp[i]*flux_d_z_comp[i]));
-	}
+  std::vector<double> flux_c_t_comp, flux_d_t_comp;
+  for (int i = 0; i < flux_c_x_comp.size(); i++) {
+    flux_c_t_comp.push_back(sqrt(flux_c_x_comp[i] * flux_c_x_comp[i] +
+                                 flux_c_y_comp[i] * flux_c_y_comp[i] +
+                                 flux_c_z_comp[i] * flux_c_z_comp[i]));
+  }
+  for (int i = 0; i < flux_d_x_comp.size(); i++) {
+    flux_d_t_comp.push_back(sqrt(flux_d_x_comp[i] * flux_d_x_comp[i] +
+                                 flux_d_y_comp[i] * flux_d_y_comp[i] +
+                                 flux_d_z_comp[i] * flux_d_z_comp[i]));
+  }
 
-	out_data.flux_c_t=flux_c_t_comp;
-	out_data.flux_d_t=flux_d_t_comp;
-
+  out_data.flux_c_t = flux_c_t_comp;
+  out_data.flux_d_t = flux_d_t_comp;
 }
 
 void MagCompensation::compensateVector(H5Data &out_data,
@@ -177,7 +178,8 @@ void MagCompensation::compensateVector(H5Data &out_data,
     Bdy.push_back(calib_data.flux_d_y[i]);
     Bdz.push_back(calib_data.flux_d_z[i]);
     //		Bb.push_back(sqrt(Bbx[i] * Bbx[i] + Bby[i] * Bby[i] + Bbz[i] *
-    // Bbz[i])); 		Bc.push_back(sqrt(Bcx[i] * Bcx[i] + Bcy[i] * Bcy[i]
+    // Bbz[i])); 		Bc.push_back(sqrt(Bcx[i] * Bcx[i] + Bcy[i] *
+    // Bcy[i]
     // + Bcz[i]
     // * Bcz[i])); 		Bd.push_back(sqrt(Bdx[i] * Bdx[i] + Bdy[i] *
     // Bdy[i] + Bdz[i] * Bdz[i]));
@@ -403,84 +405,83 @@ void MagCompensation::compensate(H5Data &out_data, const H5Data &calib_data,
   // ******************************
   // compensation of the vector Ba;
 
+  /*
+std::vector<double> BBcx, BBcy, BBcz, BBc;
+std::vector<double> BBdx, BBdy, BBdz, BBd;
+for (int i = 0; i < xyz_data.flux_c_x.size(); i++) {
+BBcx.push_back(xyz_data.flux_c_x[i]);
+BBcy.push_back(xyz_data.flux_c_y[i]);
+BBcz.push_back(xyz_data.flux_c_z[i]);
+//		BBc.push_back(sqrt(BBcx[i] * BBcx[i] + BBcy[i] * BBcy[i] +
+// BBcz[i]
+//* BBcz[i]));
+BBc.push_back(xyz_data.flux_c_t[i]);
+}
+for (int i = 0; i < xyz_data.flux_d_x.size(); i++) {
+BBdx.push_back(xyz_data.flux_d_x[i]);
+BBdy.push_back(xyz_data.flux_d_y[i]);
+BBdz.push_back(xyz_data.flux_d_z[i]);
+//		BBd.push_back(sqrt(BBdx[i] * BBdx[i] + BBdy[i] * BBdy[i] +
+// BBdz[i]
+//* BBdz[i]));
+BBd.push_back(xyz_data.flux_d_t[i]);
+}
 
-	/*
-  std::vector<double> BBcx, BBcy, BBcz, BBc;
-  std::vector<double> BBdx, BBdy, BBdz, BBd;
-  for (int i = 0; i < xyz_data.flux_c_x.size(); i++) {
-    BBcx.push_back(xyz_data.flux_c_x[i]);
-    BBcy.push_back(xyz_data.flux_c_y[i]);
-    BBcz.push_back(xyz_data.flux_c_z[i]);
-    //		BBc.push_back(sqrt(BBcx[i] * BBcx[i] + BBcy[i] * BBcy[i] +
-    // BBcz[i]
-    //* BBcz[i]));
-    BBc.push_back(xyz_data.flux_c_t[i]);
-  }
-  for (int i = 0; i < xyz_data.flux_d_x.size(); i++) {
-    BBdx.push_back(xyz_data.flux_d_x[i]);
-    BBdy.push_back(xyz_data.flux_d_y[i]);
-    BBdz.push_back(xyz_data.flux_d_z[i]);
-    //		BBd.push_back(sqrt(BBdx[i] * BBdx[i] + BBdy[i] * BBdy[i] +
-    // BBdz[i]
-    //* BBdz[i]));
-    BBd.push_back(xyz_data.flux_d_t[i]);
-  }
+std::vector<std::vector<double>> TL_A_c, TL_A_d;
+tl_model_->createMatrixA(TL_A_c, BBcx, BBcy, BBcz, Bt);
+tl_model_->createMatrixA(TL_A_d, BBdx, BBdy, BBdz, Bt);
 
-  std::vector<std::vector<double>> TL_A_c, TL_A_d;
-  tl_model_->createMatrixA(TL_A_c, BBcx, BBcy, BBcz, Bt);
-  tl_model_->createMatrixA(TL_A_d, BBdx, BBdy, BBdz, Bt);
+std::vector<double> comp_part_c, comp_part_d;
+product(comp_part_c, TL_A_c, TL_coef_3);
+product(comp_part_d, TL_A_d, TL_coef_3);
 
-  std::vector<double> comp_part_c, comp_part_d;
-  product(comp_part_c, TL_A_c, TL_coef_3);
-  product(comp_part_d, TL_A_d, TL_coef_3);
+std::vector<double> flux_c_t_comp, flux_d_t_comp;
+substract(flux_c_t_comp, BBc, comp_part_c);
+substract(flux_d_t_comp, BBd, comp_part_d);
 
-  std::vector<double> flux_c_t_comp, flux_d_t_comp;
-  substract(flux_c_t_comp, BBc, comp_part_c);
-  substract(flux_d_t_comp, BBd, comp_part_d);
+out_data.tt = xyz_data.tt;
+// out_data.mag_1_igrf = xyz_data.mag_1_igrf;
+// out_data.mag_1_uc = xyz_data.mag_1_uc;
+out_data.flux_c_t = flux_c_t_comp;
+out_data.flux_d_t = flux_d_t_comp;
 
-  out_data.tt = xyz_data.tt;
-  // out_data.mag_1_igrf = xyz_data.mag_1_igrf;
-  // out_data.mag_1_uc = xyz_data.mag_1_uc;
-  out_data.flux_c_t = flux_c_t_comp;
-  out_data.flux_d_t = flux_d_t_comp;
+std::vector<std::vector<double>> TL_A_c_vec, TL_A_d_vec;
+tl_model_->createMatrixA_Vector(TL_A_c_vec, BBcx, BBcy, BBcz);
+tl_model_->createMatrixA_Vector(TL_A_d_vec, BBdx, BBdy, BBdz);
+// std::ofstream fp("debug.txt", std::ios::out);
+// for (int i = 0; i < TL_A_c_vec.size(); i++) {
+//  for (int j = 0; j < TL_A_c_vec[i].size(); j++) {
+//    fp << TL_A_c_vec[i][j] << " ";
+//  }
+//  fp << std::endl;
+//}
+// fp.close();
 
-  std::vector<std::vector<double>> TL_A_c_vec, TL_A_d_vec;
-  tl_model_->createMatrixA_Vector(TL_A_c_vec, BBcx, BBcy, BBcz);
-  tl_model_->createMatrixA_Vector(TL_A_d_vec, BBdx, BBdy, BBdz);
-  // std::ofstream fp("debug.txt", std::ios::out);
-  // for (int i = 0; i < TL_A_c_vec.size(); i++) {
-  //  for (int j = 0; j < TL_A_c_vec[i].size(); j++) {
-  //    fp << TL_A_c_vec[i][j] << " ";
-  //  }
-  //  fp << std::endl;
-  //}
-  // fp.close();
+std::vector<double> comp_part_c_vec, comp_part_d_vec;
+product(comp_part_c_vec, TL_A_c_vec, TL_coef_3);
+product(comp_part_d_vec, TL_A_d_vec, TL_coef_3);
 
-  std::vector<double> comp_part_c_vec, comp_part_d_vec;
-  product(comp_part_c_vec, TL_A_c_vec, TL_coef_3);
-  product(comp_part_d_vec, TL_A_d_vec, TL_coef_3);
+std::vector<double> comp_part_c_x, comp_part_c_y, comp_part_c_z;
+std::vector<double> comp_part_d_x, comp_part_d_y, comp_part_d_z;
+split_vector(comp_part_c_vec, comp_part_c_x, comp_part_c_y, comp_part_c_z);
+split_vector(comp_part_d_vec, comp_part_d_x, comp_part_d_y, comp_part_d_z);
 
-  std::vector<double> comp_part_c_x, comp_part_c_y, comp_part_c_z;
-  std::vector<double> comp_part_d_x, comp_part_d_y, comp_part_d_z;
-  split_vector(comp_part_c_vec, comp_part_c_x, comp_part_c_y, comp_part_c_z);
-  split_vector(comp_part_d_vec, comp_part_d_x, comp_part_d_y, comp_part_d_z);
+std::vector<double> flux_c_x_comp, flux_c_y_comp, flux_c_z_comp;
+std::vector<double> flux_d_x_comp, flux_d_y_comp, flux_d_z_comp;
+substract(flux_c_x_comp, BBcx, comp_part_c_x);
+substract(flux_c_y_comp, BBcy, comp_part_c_y);
+substract(flux_c_z_comp, BBcz, comp_part_c_z);
+substract(flux_d_x_comp, BBdx, comp_part_d_x);
+substract(flux_d_y_comp, BBdy, comp_part_d_y);
+substract(flux_d_z_comp, BBdz, comp_part_d_z);
 
-  std::vector<double> flux_c_x_comp, flux_c_y_comp, flux_c_z_comp;
-  std::vector<double> flux_d_x_comp, flux_d_y_comp, flux_d_z_comp;
-  substract(flux_c_x_comp, BBcx, comp_part_c_x);
-  substract(flux_c_y_comp, BBcy, comp_part_c_y);
-  substract(flux_c_z_comp, BBcz, comp_part_c_z);
-  substract(flux_d_x_comp, BBdx, comp_part_d_x);
-  substract(flux_d_y_comp, BBdy, comp_part_d_y);
-  substract(flux_d_z_comp, BBdz, comp_part_d_z);
-
-  out_data.flux_c_x = flux_c_x_comp;
-  out_data.flux_c_y = flux_c_y_comp;
-  out_data.flux_c_z = flux_c_z_comp;
-  out_data.flux_d_x = flux_d_x_comp;
-  out_data.flux_d_y = flux_d_y_comp;
-  out_data.flux_d_z = flux_d_z_comp;
-	*/
+out_data.flux_c_x = flux_c_x_comp;
+out_data.flux_c_y = flux_c_y_comp;
+out_data.flux_c_z = flux_c_z_comp;
+out_data.flux_d_x = flux_d_x_comp;
+out_data.flux_d_y = flux_d_y_comp;
+out_data.flux_d_z = flux_d_z_comp;
+  */
 }
 
 void MagCompensation::product(Vector &result, const Matrix &A,

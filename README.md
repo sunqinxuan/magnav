@@ -2,9 +2,15 @@
 
 ## requirements
 
-HDF5 package is required: [HDF5](https://portal.hdfgroup.org/display/HDF5/HDF5)
+HDF5 package is required: [HDF5](https://portal.hdfgroup.org/) (or its [github](https://github.com/HDFGroup/hdf5))
 
 tested on Ubuntu 20.04.
+
+p.s. HDFView is also available.
+
+```sh
+/opt/hdfview/bin/HDFView
+```
 
 ## build 
 

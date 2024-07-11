@@ -152,8 +152,7 @@ double TollesLawson::createCoeff_Vector(
     std::vector<double> &TL_beta_, const std::vector<double> &Bx,
     const std::vector<double> &By, const std::vector<double> &Bz,
     const std::vector<double> &Bex, const std::vector<double> &Bey,
-    const std::vector<double> &Bez,
-    const std::unordered_set<TLterm> &terms) {
+    const std::vector<double> &Bez, const std::unordered_set<TLterm> &terms) {
   if (!(Bx.size() == By.size() && Bx.size() == Bz.size())) {
     ERROR("[TollesLawson][createCoeff] Bx By Bz sizes not equal!");
     return false;
@@ -564,7 +563,7 @@ void TollesLawson::stack_vector(std::vector<double> &result,
                                 const std::vector<double> &z) {
   if (!(x.size() == y.size() && x.size() == z.size())) {
     ERROR("[TollesLawson][stack_vector] x y z sizes not equal!");
-    return ;
+    return;
   }
   result.clear();
   for (size_t i = 0; i < x.size(); i++) {
