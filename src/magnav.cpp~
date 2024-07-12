@@ -183,8 +183,8 @@ int main(void) {
   MagCompensation mag_comp;
   H5Data out_data;
   mag_comp.compensate(out_data, h5data1002, h5data1003);
-  //mag_comp.compensateVector(out_data, h5data1002, h5data1003);
-  //mag_comp.compensateVector_Component(out_data, h5data1002, h5data1003);
+  mag_comp.compensateVector(out_data, h5data1002, h5data1003);
+  // mag_comp.compensateVector_Component(out_data, h5data1002, h5data1003);
 
   H5::H5File file("data_TL.h5", H5F_ACC_TRUNC);
   // hsize_t dimsf[1]; // dataset dimensions
