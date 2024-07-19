@@ -62,10 +62,10 @@ void getFlightData(const std::string filename, H5Data &h5data) {
   std::cout << "opening file: " << filename << std::endl;
   H5::DataSet data_N = file.openDataSet("N");
   data_N.read(&h5data.N, H5::PredType::NATIVE_INT64);
-  std::cout << "N=" << h5data.N << std::endl;
+  // std::cout << "N=" << h5data.N << std::endl;
   H5::DataSet data_dt = file.openDataSet("dt");
   data_dt.read(&h5data.dt, H5::PredType::NATIVE_DOUBLE);
-  std::cout << "dt=" << h5data.dt << std::endl;
+  // std::cout << "dt=" << h5data.dt << std::endl;
 
   readH5Data(h5data.N, file, "line", h5data.line);
   readH5Data(h5data.N, file, "flight", h5data.flight);
@@ -174,7 +174,7 @@ void getFlightData(const std::string filename, H5Data &h5data) {
   readH5Data(h5data.N, file, "vol_fan", h5data.vol_fan);
 }
 
-int main(void) {
+int main1(void) {
   H5Data h5data1002, h5data1003;
 
   getFlightData("/home/sun/magnav/data/Flt1002_train.h5", h5data1002);
@@ -182,9 +182,9 @@ int main(void) {
 
   MagCompensation mag_comp;
   H5Data out_data;
-  //mag_comp.compensate(out_data, h5data1002, h5data1003);
-  //mag_comp.compensateVector(out_data, h5data1002, h5data1003);
-   mag_comp.compensateVector_Component(out_data, h5data1002, h5data1003);
+  // mag_comp.compensate(out_data, h5data1002, h5data1003);
+  // mag_comp.compensateVector(out_data, h5data1002, h5data1003);
+  mag_comp.compensateVector_Component(out_data, h5data1002, h5data1003);
 
   H5::H5File file("data_TL.h5", H5F_ACC_TRUNC);
   // hsize_t dimsf[1]; // dataset dimensions
@@ -225,6 +225,287 @@ int main(void) {
   //
   // dataset = file.createDataSet("flux_d_t", datatype, dataspace);
   // dataset.write(out_data.flux_d_t.data(), H5::PredType::NATIVE_DOUBLE);
+
+  return 0;
+}
+
+bool readH5DataSet(const H5::H5File &file, const std::string field,
+                   std::vector<double> &data, std::vector<int> &dims_out) {
+  H5::DataSet dataset = file.openDataSet(field);
+  /*
+   * Get dataspace of the dataset.
+   */
+  H5::DataSpace dataspace = dataset.getSpace();
+
+  /*
+   * Get the number of dimensions in the dataspace.
+   */
+  int rank = dataspace.getSimpleExtentNdims();
+  std::cout << "rank = " << rank << std::endl;
+
+  /*
+   * Get the dimension size of each dimension in the dataspace and
+   * display them.
+   */
+  hsize_t dims[rank];
+  dataspace.getSimpleExtentDims(dims, NULL);
+  hsize_t data_size = 1;
+  dims_out.clear();
+  for (int i = 0; i < rank; i++) {
+    std::cout << "dims[" << i << "] = " << dims[i] << std::endl;
+    data_size *= dims[i];
+    dims_out.push_back(dims[i]);
+  }
+
+  data.resize(data_size);
+  dataset.read(data.data(), H5::PredType::NATIVE_DOUBLE);
+  std::cout << "data.size() = " << data.size() << std::endl;
+
+  return true;
+}
+
+double getAnomalyValue(const std::vector<double> &map, const double x,
+                       const double y) {
+  return 0;
+}
+
+int main(void) {
+  H5Data calib_data;
+
+  getFlightData("/home/sun/magnav/data/Flt1002_train.h5", calib_data);
+
+  std::vector<double> lines = {1002.02, 1002.20};
+  std::vector<double> idx1_lines(lines.size(), -1);
+  std::vector<double> idx2_lines(lines.size(), -1);
+  for (size_t l = 0; l < lines.size(); l++) {
+    for (size_t i = 0; i < calib_data.line.size(); i++) {
+      if (calib_data.line[i] == lines[l]) {
+        idx1_lines[l] = i;
+        break;
+      }
+    }
+    for (size_t i = calib_data.line.size() - 1; i > 0; i--) {
+      if (calib_data.line[i] == lines[l]) {
+        idx2_lines[l] = i;
+        break;
+      }
+    }
+    if (idx1_lines[l] < 0 || idx2_lines[l] < 0) {
+      ERROR("the value ", lines[l], " not found in calib_data.line");
+      return -1;
+    }
+    std::cout << "line " << lines[l] << " from " << idx1_lines[l] << " to "
+              << idx2_lines[l] << std::endl;
+  }
+
+  std::vector<double> x_m, y_m, z_m;
+  for (size_t l = 0; l < idx1_lines.size(); l++) {
+    int i1 = idx1_lines[l];
+    int i2 = idx2_lines[l];
+    // load flux_c data
+    // load ins_pitch, ins_roll, ins_yaw
+    for (size_t i = i1; i <= i2; i++) {
+      x_m.push_back(calib_data.flux_c_x[i]);
+      y_m.push_back(calib_data.flux_c_y[i]);
+      z_m.push_back(calib_data.flux_c_z[i]);
+    }
+  }
+
+  // read anomaly map file;
+  /*
+H5::H5File anomaly_map_file("/home/sun/magnav/data/Canada_MAG_RES_200m.hdf5",
+                        H5F_ACC_RDONLY);
+
+std::vector<double> map;
+std::vector<int> dims_map;
+std::cout << std::endl
+      << "reading Canada_MAG_RES_200m.hdf5 --- 'map' " << std::endl;
+readH5DataSet(anomaly_map_file, "map", map, dims_map);
+
+// std::ofstream fp("map.txt", std::ios::out);
+// for (int i = 0; i < dims_map[0]; i++) {
+//  for (int j = 0; j < dims_map[1]; j++) {
+//    fp << map[i * dims_map[1] + j] << " ";
+//  }
+//  fp << std::endl;
+//}
+  //fp.close();
+
+std::vector<double> xx;
+std::vector<int> dims_xx;
+std::cout << std::endl
+      << "reading Canada_MAG_RES_200m.hdf5 --- 'xx' " << std::endl;
+readH5DataSet(anomaly_map_file, "xx", xx, dims_xx);
+
+std::vector<double> yy;
+std::vector<int> dims_yy;
+std::cout << std::endl
+      << "reading Canada_MAG_RES_200m.hdf5 --- 'yy' " << std::endl;
+readH5DataSet(anomaly_map_file, "yy", yy, dims_yy);
+  */
+
+
+
+
+  //*****************************************************
+  // ellipsoid fitting;
+  std::vector<double> x(x_m);
+  std::vector<double> y(y_m);
+  std::vector<double> z(z_m);
+
+  const int N = x.size();
+  Eigen::MatrixXd design_matrix(10, N);
+  for (int i = 0; i < N; i++) {
+    design_matrix(0, i) = x[i] * x[i];
+    design_matrix(1, i) = y[i] * y[i];
+    design_matrix(2, i) = z[i] * z[i];
+    design_matrix(3, i) = 2 * y[i] * z[i];
+    design_matrix(4, i) = 2 * x[i] * z[i];
+    design_matrix(5, i) = 2 * x[i] * y[i];
+    design_matrix(6, i) = 2 * x[i];
+    design_matrix(7, i) = 2 * y[i];
+    design_matrix(8, i) = 2 * z[i];
+    design_matrix(9, i) = 1.0;
+  }
+  // std::ofstream fp("design_matrix.txt", std::ios::out);
+  // for (int i = 0; i < design_matrix.rows(); i++) {
+  //  for (int j = 0; j < design_matrix.cols(); j++) {
+  //    fp << std::fixed << design_matrix(i, j) << " ";
+  //  }
+  //  fp << std::endl;
+  //}
+  // fp.close();
+
+  // Constraint kJ > I^2
+  // Ellipsoid if k = 4
+  const int k = 4;
+
+  // Eqn(7)
+  Eigen::Matrix<double, 6, 6> C1;
+  C1 << -1, 0.5 * k - 1, 0.5 * k - 1, 0, 0, 0, 0.5 * k - 1, -1, 0.5 * k - 1, 0,
+      0, 0, 0.5 * k - 1, 0.5 * k - 1, -1, 0, 0, 0, 0, 0, 0, -k, 0, 0, 0, 0, 0,
+      0, -k, 0, 0, 0, 0, 0, 0, -k;
+
+  // Eqn(11)
+  Eigen::MatrixXd S = design_matrix * design_matrix.transpose();
+  Eigen::MatrixXd S11 = S.block(0, 0, 6, 6); // 6X6
+  Eigen::MatrixXd S12 = S.block(0, 6, 6, 4); // 6X4
+  Eigen::MatrixXd S21 = S.block(6, 0, 4, 6); // 4X6
+  Eigen::MatrixXd S22 = S.block(6, 6, 4, 4); // 4X4
+
+  // Output the matrices (for debugging purposes)
+  // cout << "design matrix:\n" << design_matrix << endl;
+  // cout << "S matrix:\n" << S << endl;
+  // cout << "S11 matrix:\n" << S11 << endl;
+  // cout << "S12 matrix:\n" << S12 << endl;
+  // cout << "S21 matrix:\n" << S21 << endl;
+  // cout << "S22 matrix:\n" << S22 << endl;
+
+  // Eqn(14) and Eqn(15)
+  Eigen::MatrixXd M = C1.inverse() * (S11 - S12 * (S22.inverse() * S21));
+  // Eigen::SelfAdjointEigenSolver<Eigen::MatrixXd> es_m(M);
+
+  // Eigen::MatrixXd evec = es_m.eigenvectors();
+  // Eigen::VectorXd eval = es_m.eigenvalues();
+
+  Eigen::EigenSolver<Eigen::MatrixXd> es_m(M);
+  Eigen::MatrixXd evec = es_m.eigenvectors().real();
+  Eigen::VectorXd eval = es_m.eigenvalues().real();
+
+  cout << "M:\n" << M << endl;
+  cout << "M_evec:\n" << evec << endl;
+  cout << "M_eval:\n" << eval.transpose() << endl;
+
+  // Find the column index of the maximum eigenvalue
+  int max_column_index;
+  eval.maxCoeff(&max_column_index);
+
+  cout << "max_column_index = " << max_column_index << endl;
+
+  // Get the corresponding eigenvector
+  Eigen::VectorXd u1 = evec.col(max_column_index);
+  Eigen::VectorXd u2 = -(S22.inverse() * S21) * u1;
+
+  // Concatenate u1 and u2 into a single vector u
+  Eigen::VectorXd u(u1.size() + u2.size());
+  u << u1, u2;
+
+  // Output the results (for debugging purposes)
+  cout << "u1 vector:\n" << u1.transpose() << endl;
+  cout << "u2 vector:\n" << u2.transpose() << endl;
+  cout << "u vector:\n" << u.transpose() << endl;
+
+  //*****************************************************
+
+
+
+
+
+  //*****************************************************
+  // computation of the compensation model coefficients;
+  double mag_earth_intensity = 54093.9956380105; // nT
+
+  Eigen::Matrix<double, 10, 1> ellipsoid_coeffs(u);
+  // ellipsoid_coeffs << -0.662597125572740, -0.527259510484714,
+  //    -0.531301167116744, -0.00961069105634865, -0.00641802453979663,
+  //    -0.0234087843548756, -7178.33182399735 * 2.0, -1396.12980160834 * 2.0,
+  //    1742.16959639974 * 2.0, 1235304461.23394;
+
+  double a = ellipsoid_coeffs[0];
+  double b = ellipsoid_coeffs[1];
+  double c = ellipsoid_coeffs[2];
+  double f = ellipsoid_coeffs[3];
+  double g = ellipsoid_coeffs[4];
+  double h = ellipsoid_coeffs[5];
+  double p = ellipsoid_coeffs[6];
+  double q = ellipsoid_coeffs[7];
+  double r = ellipsoid_coeffs[8];
+  double d = ellipsoid_coeffs[9];
+
+  Eigen::Matrix3d As_hat;
+  As_hat << a, h, g, h, b, f, g, f, c;
+  Eigen::Vector3d bs_hat;
+  bs_hat << p, q, r;
+  double cs_hat = d;
+  std::cout << "As_hat = " << std::endl << As_hat << std::endl;
+  std::cout << "As_hat.inverse() = " << std::endl
+            << As_hat.inverse() << std::endl;
+  std::cout << "bs_hat = " << bs_hat.transpose() << std::endl;
+  std::cout << "cs_hat = " << cs_hat << std::endl;
+
+  double den = bs_hat.dot(As_hat.inverse() * bs_hat) - cs_hat;
+  double alpha = mag_earth_intensity * mag_earth_intensity / den;
+  std::cout << "alpha = " << alpha << std::endl;
+
+  Eigen::Vector3d o_hat = -As_hat.inverse() * bs_hat;
+  std::cout << "o_hat = " << o_hat.transpose() << std::endl;
+
+  Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> es(As_hat);
+  Eigen::Matrix3d As_evec = es.eigenvectors();
+  Eigen::Vector3d As_eval = es.eigenvalues(); // increasing order;
+
+  Eigen::Matrix3d sqrt_As_eval;
+  sqrt_As_eval << sqrt(fabs(As_eval[0])), 0, 0, 0, sqrt(fabs(As_eval[1])), 0, 0,
+      0, sqrt(fabs(As_eval[2]));
+
+  Eigen::Matrix3d D_tilde_inv =
+      sqrt(fabs(alpha)) * sqrt_As_eval * As_evec.transpose();
+  std::cout << "D_tilde_inv = " << std::endl << D_tilde_inv << std::endl;
+
+  //*****************************************************
+
+  // Eigen::Matrix3d D_tilde;
+  // D_tilde << 1.19555366931592, 0.205168980701854, 0.0710780020693875,
+  //    0.152967675172370, -0.575201075233501, -0.912626201443581,
+  //    -0.118363856179626, 0.891188576390446, -0.581528856436894;
+  //
+  // Eigen::Vector3d o_hat;
+  // o_hat << -10788.1970344684, -2231.81509399570, 3449.75299982293;
+
+
+
+
+
 
   return 0;
 }

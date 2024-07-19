@@ -64,7 +64,7 @@ void MagCompensation::compensateVector_Component(H5Data &out_data,
   std::vector<double> TL_coef_c, TL_coef_d;
   tl_model_->createCoeff_Vector(TL_coef_c, Bcx, Bcy, Bcz, Bbx, Bby, Bbz);
   tl_model_->createCoeff_Vector(TL_coef_d, Bdx, Bdy, Bdz, Bbx, Bby, Bbz);
-	// TODO: createCoeff_Vector
+  // TODO: createCoeff_Vector
 
   std::vector<double> BBcx, BBcy, BBcz, BBc;
   std::vector<double> BBdx, BBdy, BBdz, BBd;
