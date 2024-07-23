@@ -19,11 +19,14 @@ include_directories(${HDF5_INCLUDE_DIR})
 MESSAGE("HDF5_INCLUDE_DIR: " ${HDF5_INCLUDE_DIR})
 link_directories(/usr/lib/x86_64-linux-gnu/hdf5/serial/)
 
+find_package(Ceres REQUIRED)
+include_directories(${CERES_INCLUDE_DIRS})
+
 add_subdirectory(src/mag_compensation)
 add_subdirectory(src/filter)
 
 add_executable(magnav src/magnav.cpp)
-target_link_libraries(magnav mag_compensation filter hdf5 hdf5_cpp)
+target_link_libraries(magnav mag_compensation filter hdf5 hdf5_cpp ${CERES_LIBRARIES})
  
 
 
