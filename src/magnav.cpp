@@ -174,7 +174,7 @@ void getFlightData(const std::string filename, H5Data &h5data) {
   readH5Data(h5data.N, file, "vol_fan", h5data.vol_fan);
 }
 
-int main1(void) {
+int main(void) {
   H5Data h5data1002, h5data1003;
 
   getFlightData("/home/sun/magnav/data/Flt1002_train.h5", h5data1002);
@@ -269,56 +269,60 @@ double getAnomalyValue(const std::vector<double> &map, const double x,
   return 0;
 }
 
-class CostFunctionCreator
-{
+class CostFunctionCreator {
 public:
-  CostFunctionCreator(const Eigen::Matrix3d &coeff_D_tilde_inv, const Eigen::Vector3d &coeff_o_hat, const Eigen::Matrix3d &orientation_r_c, const Eigen::Vector3d &mag_r,const Eigen::Vector3d  &mag_c)
-      : coeff_D_tilde_inv_(coeff_D_tilde_inv), coeff_o_hat_(coeff_o_hat), orientation_r_c_(orientation_r_c), mag_r_(mag_r), mag_c_(mag_c)
-  {
-  }
+  CostFunctionCreator(const Eigen::Matrix3d &coeff_D_tilde_inv,
+                      const Eigen::Vector3d &coeff_o_hat,
+                      const Eigen::Matrix3d &orientation_r_c,
+                      const Eigen::Vector3d &mag_r,
+                      const Eigen::Vector3d &mag_c)
+      : coeff_D_tilde_inv_(coeff_D_tilde_inv), coeff_o_hat_(coeff_o_hat),
+        orientation_r_c_(orientation_r_c), mag_r_(mag_r), mag_c_(mag_c) {}
 
   template <typename T>
-  bool operator()(const T *const quaternion, T *residual_ptr) const
-  {
-    //Eigen::Map<const Eigen::Matrix<T, 3, 1>> p_i(position_i);
-    //Eigen::Map<const Eigen::Quaternion<T>> q_i(orientation_i);
-//
-    //Eigen::Map<const Eigen::Matrix<T, 3, 1>> p_j(position_j);
-    //Eigen::Map<const Eigen::Quaternion<T>> q_j(orientation_j);
-//
-    //Eigen::Quaternion<T> q_i_inv = q_i.conjugate();
-    //Eigen::Quaternion<T> q_ij = q_i_inv * q_j;
-    //Eigen::Matrix<T, 3, 1> p_ij = q_i_inv * (p_j - p_i);
-//
-    //Eigen::Quaternion<T> q_ij_meas(pose_ij_meas_.linear().template cast<T>());
-    //Eigen::Quaternion<T> delta_q = q_ij_meas * q_ij.conjugate();
-//
-    //Eigen::Map<Eigen::Matrix<T, 6, 1>> residual(residual_ptr);
-    //Eigen::Map<Eigen::Matrix<T, 3, 1>> residual_trs(residual_ptr);
-    //Eigen::Map<Eigen::Matrix<T, 3, 1>> residual_rot(residual_ptr + 3);
-//
-    //residual_trs = p_ij - pose_ij_meas_.translation().template cast<T>();
-    //residual_rot = T(2.0) * delta_q.vec();
-    //residual.applyOnTheLeft(sqrt_information_.template cast<T>());
+  bool operator()(const T *const quaternion, T *residual_ptr) const {
+    // Eigen::Map<const Eigen::Matrix<T, 3, 1>> p_i(position_i);
+    // Eigen::Map<const Eigen::Quaternion<T>> q_i(orientation_i);
+    //
+    // Eigen::Map<const Eigen::Matrix<T, 3, 1>> p_j(position_j);
+    // Eigen::Map<const Eigen::Quaternion<T>> q_j(orientation_j);
+    //
+    // Eigen::Quaternion<T> q_i_inv = q_i.conjugate();
+    // Eigen::Quaternion<T> q_ij = q_i_inv * q_j;
+    // Eigen::Matrix<T, 3, 1> p_ij = q_i_inv * (p_j - p_i);
+    //
+    // Eigen::Quaternion<T> q_ij_meas(pose_ij_meas_.linear().template
+    // cast<T>()); Eigen::Quaternion<T> delta_q = q_ij_meas * q_ij.conjugate();
+    //
+    // Eigen::Map<Eigen::Matrix<T, 6, 1>> residual(residual_ptr);
+    // Eigen::Map<Eigen::Matrix<T, 3, 1>> residual_trs(residual_ptr);
+    // Eigen::Map<Eigen::Matrix<T, 3, 1>> residual_rot(residual_ptr + 3);
+    //
+    // residual_trs = p_ij - pose_ij_meas_.translation().template cast<T>();
+    // residual_rot = T(2.0) * delta_q.vec();
+    // residual.applyOnTheLeft(sqrt_information_.template cast<T>());
 
     return true;
   }
 
-  static ceres::CostFunction *Create(const Eigen::Matrix3d &coeff_D_tilde_inv, const Eigen::Vector3d &coeff_o_hat, const Eigen::Matrix3d &orientation_r_c, const Eigen::Vector3d &mag_r,const Eigen::Vector3d  &mag_c)
-  {
-    return new ceres::AutoDiffCostFunction<CostFunctionCreator, 3, 4>(new CostFunctionCreator(coeff_D_tilde_inv, coeff_o_hat, orientation_r_c, mag_r,mag_c));
+  static ceres::CostFunction *Create(const Eigen::Matrix3d &coeff_D_tilde_inv,
+                                     const Eigen::Vector3d &coeff_o_hat,
+                                     const Eigen::Matrix3d &orientation_r_c,
+                                     const Eigen::Vector3d &mag_r,
+                                     const Eigen::Vector3d &mag_c) {
+    return new ceres::AutoDiffCostFunction<CostFunctionCreator, 3, 4>(
+        new CostFunctionCreator(coeff_D_tilde_inv, coeff_o_hat, orientation_r_c,
+                                mag_r, mag_c));
   }
 
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 private:
-	Eigen::Matrix3d coeff_D_tilde_inv_;
-	Eigen::Vector3d coeff_o_hat_;
-	Eigen::Matrix3d orientation_r_c_; // rotation from b_k to b_k+1;
-	Eigen::Vector3d mag_r_, mag_c_;
+  Eigen::Matrix3d coeff_D_tilde_inv_;
+  Eigen::Vector3d coeff_o_hat_;
+  Eigen::Matrix3d orientation_r_c_; // rotation from b_k to b_k+1;
+  Eigen::Vector3d mag_r_, mag_c_;
 };
-
-
 
 /*
     euler2dcm(roll, pitch, yaw)
@@ -350,31 +354,29 @@ Section 3.6 (pg. 36-41 & 537).
 **Returns:**
 - `dcm`: `3` x `3` direction cosine matrix [-]
 */
-Eigen::Matrix3d euler2dcm(double roll, double pitch, double yaw)
-{
-    double cr = cos(roll);
-    double sr = sin(roll);
-    double cp = cos(pitch);
-    double sp = sin(pitch);
-    double cy = cos(yaw);
-    double sy = sin(yaw);
+Eigen::Matrix3d euler2dcm(double roll, double pitch, double yaw) {
+  double cr = cos(roll);
+  double sr = sin(roll);
+  double cp = cos(pitch);
+  double sp = sin(pitch);
+  double cy = cos(yaw);
+  double sy = sin(yaw);
 
-		Eigen::Matrix3d dcm=Eigen::Matrix3d::Zero();
-		dcm(0, 0) =  cp * cy;
-		dcm(0, 1) = -cr * sy + sr * sp * cy;
-		dcm(0, 2) =  sr * sy + cr * sp * cy;
-		dcm(1, 0) =  cp * sy;
-		dcm(1, 1) =  cr * cy + sr * sp * sy;
-		dcm(1, 2) = -sr * cy + cr * sp * sy;
-		dcm(2, 0) = -sp;
-		dcm(2, 1) =  sr * cp;
-		dcm(2, 2) =  cr * cp;
+  Eigen::Matrix3d dcm = Eigen::Matrix3d::Zero();
+  dcm(0, 0) = cp * cy;
+  dcm(0, 1) = -cr * sy + sr * sp * cy;
+  dcm(0, 2) = sr * sy + cr * sp * cy;
+  dcm(1, 0) = cp * sy;
+  dcm(1, 1) = cr * cy + sr * sp * sy;
+  dcm(1, 2) = -sr * cy + cr * sp * sy;
+  dcm(2, 0) = -sp;
+  dcm(2, 1) = sr * cp;
+  dcm(2, 2) = cr * cp;
 
-		return dcm;
+  return dcm;
 }
 
-
-int main(void) {
+int main2(int argc, char *argv[]) {
   H5Data calib_data;
 
   getFlightData("/home/sun/magnav/data/Flt1002_train.h5", calib_data);
@@ -403,22 +405,41 @@ int main(void) {
               << idx2_lines[l] << std::endl;
   }
 
+  std::string filename = "output.txt";
+  if (argc != 1) {
+    filename = argv[1];
+  }
+  std::ofstream fp(filename);
+  if (!fp) {
+    std::cerr << "Error: Could not create file " << filename << std::endl;
+    return 1;
+  }
+
+  // save/load data;
+  std::vector<double> timestamps;
   std::vector<double> x_m, y_m, z_m; // mag_x, mag_y, mag_z;
-	std::vector<double> ins_pitch, ins_roll, ins_yaw; 
+  std::vector<double> ins_pitch, ins_roll, ins_yaw;
   for (size_t l = 0; l < idx1_lines.size(); l++) {
     int i1 = idx1_lines[l];
     int i2 = idx2_lines[l];
     // load flux_c data
     // load ins_pitch, ins_roll, ins_yaw
     for (size_t i = i1; i <= i2; i++) {
+      timestamps.push_back(calib_data.tt[i]);
       x_m.push_back(calib_data.flux_c_x[i]);
       y_m.push_back(calib_data.flux_c_y[i]);
       z_m.push_back(calib_data.flux_c_z[i]);
-			ins_pitch.push_back(calib_data.ins_pitch[i]);
-			ins_roll.push_back(calib_data.ins_roll[i]);
-			ins_yaw.push_back(calib_data.ins_yaw[i]);
+      ins_pitch.push_back(calib_data.ins_pitch[i]);
+      ins_roll.push_back(calib_data.ins_roll[i]);
+      ins_yaw.push_back(calib_data.ins_yaw[i]);
+      fp << std::fixed << lines[l] << "\t" << calib_data.tt[i] << "\t"
+         << calib_data.flux_c_x[i] << "\t" << calib_data.flux_c_y[i] << "\t"
+         << calib_data.flux_c_z[i] << "\t" << calib_data.ins_pitch[i] << "\t"
+         << calib_data.ins_roll[i] << "\t" << calib_data.ins_yaw[i] << "\t"
+         << std::endl;
     }
   }
+  fp.close();
 
   // read anomaly map file;
   /*
@@ -452,9 +473,6 @@ std::cout << std::endl
       << "reading Canada_MAG_RES_200m.hdf5 --- 'yy' " << std::endl;
 readH5DataSet(anomaly_map_file, "yy", yy, dims_yy);
   */
-
-
-
 
   //*****************************************************
   // ellipsoid fitting;
@@ -540,14 +558,10 @@ readH5DataSet(anomaly_map_file, "yy", yy, dims_yy);
   u << u1, u2;
 
   // Output the results (for debugging purposes)
-  cout << "u1 vector:\n" << u1.transpose() << endl;
-  cout << "u2 vector:\n" << u2.transpose() << endl;
-  cout << "u vector:\n" << u.transpose() << endl;
+  // cout << "u1 vector:\n" << u1.transpose() << endl;
+  // cout << "u2 vector:\n" << u2.transpose() << endl;
+  cout <<fixed<< "u vector:\n" << u.transpose() << endl;
   //*****************************************************
-
-
-
-
 
   //*****************************************************
   // computation of the compensation model coefficients;
@@ -609,38 +623,33 @@ readH5DataSet(anomaly_map_file, "yy", yy, dims_yy);
   // Eigen::Vector3d o_hat;
   // o_hat << -10788.1970344684, -2231.81509399570, 3449.75299982293;
 
-
   //*****************************************************
   // estimate initial value of orthogonal matrix R=V*R^{mb};
 
-
   //*****************************************************
-
-
-
-
-
 
   //*****************************************************
   // ceres optimization problem;
-	ceres::Problem problem;
-	ceres::LossFunction *loss_function=new ceres::HuberLoss(1.0);
-  ceres::LocalParameterization *quat_param = new ceres::EigenQuaternionParameterization;
+  ceres::Problem problem;
+  ceres::LossFunction *loss_function = new ceres::HuberLoss(1.0);
+  ceres::LocalParameterization *quat_param =
+      new ceres::EigenQuaternionParameterization;
 
-	Eigen::Matrix3d rotation_rc;
-	Eigen::Vector3d mag_r,mag_c;
-	mag_r(0)=x_m[0];
-	mag_r(1)=y_m[0];
-	mag_r(2)=z_m[0];
-	mag_c(0)=x_m[1];
-	mag_c(1)=y_m[1];
-	mag_c(2)=z_m[1];
+  Eigen::Matrix3d rotation_rc;
+  Eigen::Vector3d mag_r, mag_c;
+  mag_r(0) = x_m[0];
+  mag_r(1) = y_m[0];
+  mag_r(2) = z_m[0];
+  mag_c(0) = x_m[1];
+  mag_c(1) = y_m[1];
+  mag_c(2) = z_m[1];
 
-	ceres::CostFunction *cost_function=CostFunctionCreator::Create(D_tilde_inv,o_hat,rotation_rc,mag_r,mag_c);
+  ceres::CostFunction *cost_function = CostFunctionCreator::Create(
+      D_tilde_inv, o_hat, rotation_rc, mag_r, mag_c);
 
-	Eigen::Quaterniond quat;
-	problem.AddResidualBlock(cost_function,loss_function,quat.coeffs().data());
-	problem.SetParameterization(quat.coeffs().data(),quat_param);
+  Eigen::Quaterniond quat;
+  problem.AddResidualBlock(cost_function, loss_function, quat.coeffs().data());
+  problem.SetParameterization(quat.coeffs().data(), quat_param);
 
   ceres::Solver::Summary summary;
   ceres::Solver::Options options;
@@ -649,10 +658,11 @@ readH5DataSet(anomaly_map_file, "yy", yy, dims_yy);
   options.trust_region_strategy_type = ceres::LEVENBERG_MARQUARDT;
   options.minimizer_progress_to_stdout = true;
 
-  //ceres::Solve(options, &problem, &summary);
-  //if (minimizer_progress_to_stdout_) std::cout << summary.FullReport() << std::endl;
+  // ceres::Solve(options, &problem, &summary);
+  // if (minimizer_progress_to_stdout_) std::cout << summary.FullReport() <<
+  // std::endl;
 
-  //return summary.IsSolutionUsable();
+  // return summary.IsSolutionUsable();
   //*****************************************************
 
   return 0;

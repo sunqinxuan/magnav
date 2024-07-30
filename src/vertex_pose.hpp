@@ -18,19 +18,15 @@
 #include <Eigen/Dense>
 #include <ceres/ceres.h>
 
-namespace vision_localization
-{
+namespace vision_localization {
 using Matrix6d = Eigen::Matrix<double, 6, 6>;
 using Vector6d = Eigen::Matrix<double, 6, 1>;
 
-class VertexPose
-{
+class VertexPose {
 public:
-  VertexPose()
-  {
-  }
-  VertexPose(unsigned int i, const Eigen::Isometry3d &pose, bool fix) : id(i), fixed(fix)
-  {
+  VertexPose() {}
+  VertexPose(unsigned int i, const Eigen::Isometry3d &pose, bool fix)
+      : id(i), fixed(fix) {
     position = pose.translation();
     quaternion = Eigen::Quaterniond(pose.linear());
     quaternion.normalize();
@@ -49,18 +45,13 @@ public:
   EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
-class SE3Parameterization : public ceres::LocalParameterization
-{
+class SE3Parameterization : public ceres::LocalParameterization {
 public:
-  SE3Parameterization()
-  {
-  }
-  virtual ~SE3Parameterization()
-  {
-  }
+  SE3Parameterization() {}
+  virtual ~SE3Parameterization() {}
 
-  virtual bool Plus(const double *x, const double *delta, double *x_plus_delta) const
-  {
+  virtual bool Plus(const double *x, const double *delta,
+                    double *x_plus_delta) const {
     Eigen::Map<const Eigen::Matrix<double, 6, 1>> lie(x);
     Eigen::Map<const Eigen::Matrix<double, 6, 1>> delta_lie(delta);
 
@@ -75,20 +66,13 @@ public:
 
     return true;
   }
-  virtual bool ComputeJacobian(const double *x, double *jacobian) const
-  {
+  virtual bool ComputeJacobian(const double *x, double *jacobian) const {
     ceres::MatrixRef(jacobian, 6, 6) = ceres::Matrix::Identity(6, 6);
     return true;
   }
-  virtual int GlobalSize() const
-  {
-    return 6;
-  }
-  virtual int LocalSize() const
-  {
-    return 6;
-  }
+  virtual int GlobalSize() const { return 6; }
+  virtual int LocalSize() const { return 6; }
 };
 
-}  // namespace vision_localization
+} // namespace vision_localization
 #endif

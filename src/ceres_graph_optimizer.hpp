@@ -20,10 +20,8 @@
 #include "models/graph_optimizer/ceres/types/vertex_pose.hpp"
 #include "models/graph_optimizer/interface_graph_optimizer.hpp"
 
-namespace vision_localization
-{
-class CeresGraphOptimizer : public InterfaceGraphOptimizer
-{
+namespace vision_localization {
+class CeresGraphOptimizer : public InterfaceGraphOptimizer {
 public:
   using MapVertexPose = std::map<unsigned int, VertexPose>;
   using DequeEdgePose = std::deque<EdgePose>;
@@ -40,20 +38,28 @@ public:
   int GetNodeNum() override;
 
   void AddSe3Node(const Eigen::Isometry3f &pose, bool need_fix) override;
-  void AddSe3Node(const Eigen::Isometry3f &pose, unsigned int vertex_index, bool need_fix) override;
+  void AddSe3Node(const Eigen::Isometry3f &pose, unsigned int vertex_index,
+                  bool need_fix) override;
   void RemoveSe3Node(unsigned int vertex_index) override;
   void RemoveSe3Node() override;
-  void AddSe3Edge(int vertex_index1, int vertex_index2, const Eigen::Isometry3f &relative_pose,
+  void AddSe3Edge(int vertex_index1, int vertex_index2,
+                  const Eigen::Isometry3f &relative_pose,
                   const Eigen::MatrixXf covariance) override;
-  void AddSe3PreintEdge(int vertex_index1, int vertex_index2, const Eigen::Isometry3f &relative_pose,
+  void AddSe3PreintEdge(int vertex_index1, int vertex_index2,
+                        const Eigen::Isometry3f &relative_pose,
                         const Eigen::MatrixXf covariance) override;
-  void AddSe3LoopEdge(int vertex_index1, int vertex_index2, const Eigen::Isometry3f &relative_pose,
+  void AddSe3LoopEdge(int vertex_index1, int vertex_index2,
+                      const Eigen::Isometry3f &relative_pose,
                       const Eigen::MatrixXf covariance) override;
-  void AddSe3PriorXYZEdge(int se3_vertex_index, const Eigen::Vector3f &xyz, Eigen::VectorXf noise) override;
-  void AddSe3PriordZEdge(int vertex_index1, int vertex_index2, const double delta_z,
+  void AddSe3PriorXYZEdge(int se3_vertex_index, const Eigen::Vector3f &xyz,
+                          Eigen::VectorXf noise) override;
+  void AddSe3PriordZEdge(int vertex_index1, int vertex_index2,
+                         const double delta_z,
                          const Eigen::VectorXf noise) override;
-  void AddSe3PriorZEdge(int vertex_index1, const Eigen::Vector2f height_range, const Eigen::VectorXf noise) override;
-  void AddSe3PriordRPEdge(int vertex_index1, int vertex_index2, const Eigen::Vector2f delta_RP,
+  void AddSe3PriorZEdge(int vertex_index1, const Eigen::Vector2f height_range,
+                        const Eigen::VectorXf noise) override;
+  void AddSe3PriordRPEdge(int vertex_index1, int vertex_index2,
+                          const Eigen::Vector2f delta_RP,
                           const Eigen::VectorXf noise) override;
 
 private:
@@ -100,9 +106,10 @@ private:
   double kernel_size_;
 
   ceres::LinearSolverType linear_solver_type_ = ceres::SPARSE_NORMAL_CHOLESKY;
-  ceres::TrustRegionStrategyType trust_region_strategy_type_ = ceres::LEVENBERG_MARQUARDT;
+  ceres::TrustRegionStrategyType trust_region_strategy_type_ =
+      ceres::LEVENBERG_MARQUARDT;
   unsigned int max_num_iterations_ = 10;
   bool minimizer_progress_to_stdout_ = false;
 };
-}  // namespace vision_localization
+} // namespace vision_localization
 #endif
